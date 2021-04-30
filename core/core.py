@@ -1,8 +1,9 @@
+import pygame as pg
+
 from .canvas import Canvas
 from .coredata import CoreData
 from .graphics import Graphics
-
-import pygame as pg
+from ..ui.ui import UI
 
 class Core:
     def __init__(self):
@@ -10,15 +11,12 @@ class Core:
         self.core_data = CoreData()
         self.graphics = Graphics(self.core_data)
         self.canvas = Canvas(self.core_data, self.graphics)
-        # TODO: Create ui object
+        self.ui = UI(self.core_data, self.graphics)
         # TODO: Create controller object
-        pass
+        self.run()
 
     def run(self) -> None:
-        # TODO: Implement run function
-        # While the 'running' flag in the core data is True:
-            # Check IO
-            # Re-render canvas
-            # Re-render ui
-            # Re-render screen as composite of canvas and ui
-        pass
+        while self.core_data.get_data('running'):
+            self.canvas.redraw()
+            self.ui.redraw()
+            self.graphics.render()
