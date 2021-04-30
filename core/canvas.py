@@ -24,7 +24,7 @@ class Canvas:
 
     def redraw(self) -> None:
         # TODO: Implement redraw function for the canvas
-        buffer = self.graphics.get_canvas_buffer()
+        buffer = self.graphics.clear_canvas_buffer()
         theme = self.core_data.get_data('canvas-theme')
         # Pass to components and wires
         pass
