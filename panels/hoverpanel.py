@@ -1,28 +1,27 @@
 from typing import Callable, Tuple
 
 from pygame import Surface
-from pygame.event import Event
 
 from .panel import Panel
 from ..ui.theme import Theme
 
-class Button(Panel):
+class HoverPanel(Panel):
     def __init__(self, 
                     label_obj:object,
-                    on_click:Callable[[Event], None],
+                    value_getter:Callable[[], None],
                     pos:Tuple[int, int]=(0, 0),
                     size:tuple[int, int]=(0, 0)
                 ):
         Panel.__init__(self, pos, size)
         self.label_obj = label_obj
-        self.on_click = on_click
-
-    def handle_click(self, click_event:Event) -> None:
-        self.on_click(click_event)
+        self.value_getter = value_getter
 
     def render(self, buffer:Surface, theme:Theme):
+        if self.hovered:
+            content = theme.medium_text(self.value_getter())
+        else:
+            content = theme.medium_text(self.label_obj)
         super().render(buffer, theme, hover_color=self.hovered)
-        label = theme.large_text(self.label_obj)
-        label_x = self.rect.centerx - label.get_width() // 2
-        label_y = self.rect.centery - label.get_height() // 2
-        buffer.blit(label, (label_x, label_y))
+        content_x = self.rect.centerx - content.get_width() // 2
+        content_y = self.rect.centery - content.get_height() // 2
+        buffer.blit(content, (content_x, content_y))

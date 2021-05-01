@@ -9,12 +9,14 @@ class CoreData:
             'running': True,
             'canvas-theme': Theme(
                 bg_color=(0, 0, 0),
+                hover_color=(0, 0, 0),
                 border_color=(255, 255, 255),
                 border_width=2,
                 text_color=(255, 255, 255)
             ),
             'ui-theme': Theme(
                 bg_color=(255, 255, 255),
+                hover_color=(191, 191, 191),
                 border_color=(0, 0, 0),
                 border_width = 2,
             )

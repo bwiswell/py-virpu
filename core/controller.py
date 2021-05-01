@@ -14,17 +14,21 @@ class Controller:
         self.ui = ui
 
     def handle_mousedown(self, event:Event) -> None:
-        ui_target = self.ui.get_clicked(event.pos)
-        if ui_target is not None:
-            ui_target.handle_click(event)
+        ui_button = self.ui.button_at_pos(event.pos)
+        if ui_button is not None:
+            ui_button.handle_click(event)
 
     def handle_keydown(self, event:Event) -> None:
         if event.key == pg.K_ESCAPE:
             self.core_data.set_data('running', False)
         elif event.key == pg.K_SPACE:
-            curr_tick = self.core_data.get_data('ticks')
-            self.core_data.set_data('ticks', curr_tick)
             self.canvas.tick()
+
+    def handle_hover(self) -> None:
+        mouse_pos = pg.mouse.get_pos()
+        ui_target = self.ui.at_pos(mouse_pos)
+        if ui_target is not None:
+            ui_target.handle_hover()
 
     def io_tick(self) -> None:
         for event in pg.event.get():
@@ -32,3 +36,4 @@ class Controller:
                 self.handle_mousedown(event)
             elif event.type == pg.KEYDOWN:
                 self.handle_keydown(event)
+        self.handle_hover()

@@ -24,7 +24,8 @@ class Canvas:
 
     def tick(self) -> None:
         # TODO: Implement tick function for the canvas
-        pass
+        curr_tick = self.core_data.get_data('ticks') + 1
+        self.core_data.set_data('ticks', curr_tick)
 
     def redraw(self) -> None:
         # TODO: Implement redraw function for the canvas

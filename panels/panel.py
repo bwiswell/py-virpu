@@ -11,6 +11,7 @@ class Panel:
         self.w, self.h = size
         self.size = size
         self.rect = Rect(self.pos, self.size)
+        self.hovered = False
 
     def repos_resize(self, 
                         new_pos:Tuple[int, int], 
@@ -25,11 +26,16 @@ class Panel:
     def collides(self, collision_pos:Tuple[int, int]) -> bool:
         return self.rect.collidepoint(collision_pos)
 
-    def render(self, buffer:Surface, theme:Theme):
-        buffer.fill(theme.get_bg_color(), self.rect)
+    def handle_hover(self) -> None:
+        self.hovered = True
+
+    def render(self, buffer:Surface, theme:Theme, hover_color:bool=False) -> None:
+        bg_color = theme.get_hover_color() if hover_color else theme.get_bg_color()
+        buffer.fill(bg_color, self.rect)
         draw.rect(
             buffer, 
             theme.get_border_color(), 
             self.rect, 
             theme.get_border_width()
         )
+        self.hovered = False
