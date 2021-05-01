@@ -1,6 +1,7 @@
 import pygame as pg
 
 from .canvas import Canvas
+from .controller import Controller
 from .coredata import CoreData
 from .graphics import Graphics
 from ..ui.ui import UI
@@ -12,11 +13,15 @@ class Core:
         self.graphics = Graphics(self.core_data)
         self.canvas = Canvas(self.core_data, self.graphics)
         self.ui = UI(self.core_data, self.graphics)
-        # TODO: Create controller object
+        self.controller = Controller(self.core_data, self.graphics, self.canvas, self.ui)
         self.run()
+
+    def load_ui(self) -> None:
+        pass
 
     def run(self) -> None:
         while self.core_data.get_data('running'):
+            self.controller.io_tick()
             self.canvas.redraw()
             self.ui.redraw()
             self.graphics.render()

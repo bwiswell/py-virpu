@@ -5,7 +5,7 @@ from ..ui.theme import Theme
 class CoreData:
     def __init__(self):
         self.data = {
-            'cycles': 0,
+            'ticks': 0,
             'running': True,
             'canvas-theme': Theme(
                 bg_color=(0, 0, 0),

@@ -33,7 +33,8 @@ class Signal:
         return Signal(signal.value, target_width)
 
     def __str__(self) -> str:
-        type_text = f'{"un" if not self.signed}signed {self.data_width}-bit int'
+        type_text = f'{"un" if not self.signed else ""}signed '
+        type_text += f'{self.data_width}-bit int'
         return f'{self.value} + ({type_text})'
 
     def is_nonzero(self) -> bool:

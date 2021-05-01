@@ -22,6 +22,10 @@ class Canvas:
     def remove_wire(self, wire): # :Wire):
         self.wires.remove(wire)
 
+    def tick(self) -> None:
+        # TODO: Implement tick function for the canvas
+        pass
+
     def redraw(self) -> None:
         # TODO: Implement redraw function for the canvas
         buffer = self.graphics.clear_canvas_buffer()
