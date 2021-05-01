@@ -1,4 +1,4 @@
-from typing import Callable, Tuple
+from typing import Callable, List, Tuple
 
 from pygame import Surface
 from pygame.event import Event
@@ -8,21 +8,22 @@ from ..ui.theme import Theme
 
 class Button(Panel):
     def __init__(self, 
-                    label_obj:object,
-                    on_click:Callable[[Event], None],
+                    label_objs:List[object],
+                    on_clicks:List[Callable[[Event], None]],
                     pos:Tuple[int, int]=(0, 0),
                     size:tuple[int, int]=(0, 0)
                 ):
-        Panel.__init__(self, pos, size)
-        self.label_obj = label_obj
-        self.on_click = on_click
+        Panel.__init__(self, label_objs, pos, size)
+        self.on_clicks = on_clicks
 
-    def handle_click(self, click_event:Event) -> None:
-        self.on_click(click_event)
+    def get_curr_on_click(self) -> Callable[[Event], None]:
+        return self.on_clicks[self.curr_selection]
 
-    def render(self, buffer:Surface, theme:Theme):
+    def handle_click(self, event:Event) -> None:
+        super().handle_click(event)
+        if event.button == 1:
+            on_click = self.get_curr_on_click()
+            on_click(event)
+
+    def render(self, buffer:Surface, theme:Theme) -> None:
         super().render(buffer, theme, hover_color=self.hovered)
-        label = theme.large_text(self.label_obj)
-        label_x = self.rect.centerx - label.get_width() // 2
-        label_y = self.rect.centery - label.get_height() // 2
-        buffer.blit(label, (label_x, label_y))
