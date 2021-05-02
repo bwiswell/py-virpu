@@ -20,6 +20,11 @@ class Panel:
         self.curr_selection = 0
         self.hovered = False
 
+    def repos(self, new_pos:Tuple[int, int]) -> None:
+        self.x, self.y = new_pos
+        self.pos = new_pos
+        self.rect = Rect(self.pos, self.size)
+
     def repos_resize(self, 
                         new_pos:Tuple[int, int], 
                         new_size:Tuple[int, int]
