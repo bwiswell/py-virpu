@@ -42,8 +42,11 @@ class Signal:
         else:
             return signal
 
+    def get_signed_str(self) -> str:
+        return 'signed' if self.signed else 'unsigned'
+
     def __str__(self) -> str:
-        type_text = f'{"u" if not self.signed else "s"}'
+        type_text = f'{"s" if self.signed else "u"}'
         type_text += f'{self.data_width}'
         return f'{self.value} ({type_text})'
 

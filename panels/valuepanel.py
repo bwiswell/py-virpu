@@ -20,12 +20,13 @@ class ValuePanel(Panel):
 
     def render(self, buffer:Surface, theme:Theme):
         super().render(buffer, theme, render_label=False)
+        y_off = self.h // 3
         label = theme.large_text(self.curr_label())
         label_x = self.rect.centerx - label.get_width() // 2
-        label_y = self.y + self.h // 4 - label.get_height() // 2
+        label_y = self.y + y_off - label.get_height() // 2
         buffer.blit(label, (label_x, label_y))
         value_getter = self.curr_value_getter()
         value = theme.medium_text(value_getter())
         value_x = self.rect.centerx - value.get_width() // 2
-        value_y = self.rect.centery - value.get_height() // 2
+        value_y = self.y + 2 * y_off - value.get_height() // 2
         buffer.blit(value, (value_x, value_y))

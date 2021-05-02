@@ -6,7 +6,7 @@ from pygame.font import Font, SysFont
 class Theme:
     def __init__(self,
                     bg_color:Tuple[int, int, int],
-                    hover_color:Tuple[int, int, int],
+                    active_color:Tuple[int, int, int],
                     border_color:Tuple[int, int, int],
                     border_width:Tuple[int, int, int],
                     border_radius:int=10,
@@ -17,7 +17,7 @@ class Theme:
                     text_color:Tuple[int, int, int]=(0, 0, 0)
                 ):
         self.bg_color = bg_color
-        self.hover_color = hover_color
+        self.active_color = active_color
         self.border_color = border_color
         self.border_width = border_width
         self.border_radius = border_radius
@@ -32,8 +32,8 @@ class Theme:
     def get_bg_color(self) -> Tuple[int, int, int]:
         return self.bg_color
 
-    def get_hover_color(self) -> Tuple[int, int, int]:
-        return self.hover_color
+    def get_active_color(self) -> Tuple[int, int, int]:
+        return self.active_color
 
     def get_border_color(self) -> Tuple[int, int, int]:
         return self.border_color
@@ -50,8 +50,8 @@ class Theme:
     def set_bg_color(self, bg_color:Tuple[int, int, int]) -> None:
         self.bg_color = bg_color
 
-    def set_hover_color(self, hover_color:Tuple[int, int, int]) -> None:
-        self.hover_color = hover_color
+    def set_active_color(self, active_color:Tuple[int, int, int]) -> None:
+        self.active_color = active_color
 
     def set_border_color(self, border_color:Tuple[int, int, int]) -> None:
         self.border_color = border_color

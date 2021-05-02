@@ -39,5 +39,9 @@ class IOPort(HoverPanel):
     def set_signed(self, signed:bool) -> None:
         self.value = Signal(0, self.data_width, signed)
 
+    def set_signed_str(self, signed_str:str) -> None:
+        signed = signed_str == 'signed'
+        self.set_signed(signed)
+
     def set_value(self, value:Signal) -> None:
         self.value = value

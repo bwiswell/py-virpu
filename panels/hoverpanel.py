@@ -8,14 +8,14 @@ from ..ui.theme import Theme
 class HoverPanel(Panel):
     def __init__(self, 
                     label_objs:List[object],
-                    value_getters:List[Callable[[], None]],
+                    value_getters:List[Callable[[], object]],
                     pos:Tuple[int, int]=(0, 0),
                     size:tuple[int, int]=(0, 0)
                 ):
         Panel.__init__(self, label_objs, pos, size)
         self.value_getters = value_getters
 
-    def curr_value_getter(self) -> Callable[[], None]:
+    def curr_value_getter(self) -> Callable[[], object]:
         return self.value_getters[self.curr_selection]
 
     def render(self, buffer:Surface, theme:Theme):
@@ -27,7 +27,7 @@ class HoverPanel(Panel):
         super().render(
             buffer, 
             theme, 
-            hover_color=self.hovered, 
+            active=self.hovered, 
             render_label=False
         )
         content_x = self.rect.centerx - content.get_width() // 2

@@ -57,11 +57,11 @@ class Panel:
     def render(self, 
                 buffer:Surface, 
                 theme:Theme, 
-                hover_color:bool=False,
+                active:bool=False,
                 render_label:bool=True
             ) -> None:
-        if hover_color:
-            bg_color = theme.get_hover_color()
+        if active:
+            bg_color = theme.get_active_color()
         else:
             bg_color = theme.get_bg_color()
         border_radius = theme.get_border_radius()
