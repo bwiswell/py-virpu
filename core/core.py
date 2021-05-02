@@ -5,8 +5,9 @@ from .canvas import Canvas
 from .controller import Controller
 from .coredata import CoreData
 from .graphics import Graphics
+from ..components.component import Component
+from ..components.memory import Memory
 from ..panels.button import Button
-from ..panels.hoverpanel import HoverPanel
 from ..panels.valuepanel import ValuePanel
 from ..ui.ui import UI
 
@@ -25,12 +26,16 @@ class Core:
         def get_ticks(): return self.core_data.get_data('ticks')
         tick_panel = ValuePanel(['Tick Counter'], [get_ticks])
         self.ui.register_panel('ticks', (-1, 0), tick_panel)
-        def tick(event:Event): self.canvas.tick()
-        tick_button = Button(['Tick++'], [tick])
-        self.ui.register_button('incr-tick', (-1, 1), tick_button)
-        def test_message(): return 'Test message'
-        test_panel = HoverPanel(['Test Panel'], [test_message])
-        self.ui.register_panel('test', (-2, 0), test_panel)
+        
+        add_comp_labels = []
+        add_comp_on_clicks = []
+        for cls in [Memory]:
+            add_comp_labels.append(cls.NAME)
+            def add_comp_fn(event:Event) -> None:
+                self.core_data.set_data('placing', cls())
+            add_comp_on_clicks.append(add_comp_fn)
+        add_comp_btn = Button(add_comp_labels, add_comp_on_clicks)
+        self.ui.register_button('add-comp', (-1, 1), add_comp_btn)
 
     def run(self) -> None:
         while self.core_data.get_data('running'):

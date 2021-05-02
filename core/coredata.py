@@ -7,6 +7,7 @@ class CoreData:
         self.data = {
             'ticks': 0,
             'running': True,
+            'placing': None,
             'canvas-theme': Theme(
                 bg_color=(0, 0, 0),
                 hover_color=(0, 0, 0),
@@ -15,6 +16,12 @@ class CoreData:
                 text_color=(255, 255, 255)
             ),
             'ui-theme': Theme(
+                bg_color=(255, 255, 255),
+                hover_color=(191, 191, 191),
+                border_color=(0, 0, 0),
+                border_width = 2,
+            ),
+            'overlay-theme': Theme(
                 bg_color=(255, 255, 255),
                 hover_color=(191, 191, 191),
                 border_color=(0, 0, 0),

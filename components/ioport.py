@@ -3,7 +3,7 @@ from typing import Tuple
 from ..panels.hoverpanel import HoverPanel
 from ..signal.signal import Signal
 
-class IOPort:
+class IOPort(HoverPanel):
 
     SIZE = (100, 50)
 

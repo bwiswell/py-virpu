@@ -25,15 +25,18 @@ class Panel:
         self.pos = new_pos
         self.rect = Rect(self.pos, self.size)
 
+    def set_center(self, new_center:Tuple[int, int]) -> None:
+        new_x = new_center[0] - self.w // 2
+        new_y = new_center[1] - self.h // 2
+        self.repos((new_x, new_y))
+
     def repos_resize(self, 
                         new_pos:Tuple[int, int], 
                         new_size:Tuple[int, int]
                     ) -> None:
-        self.x, self.y = new_pos
-        self.pos = new_pos
         self.w, self.h = new_size
         self.size = new_size
-        self.rect = Rect(self.pos, self.size)
+        self.repos(new_pos)
 
     def curr_label(self) -> object:
         return self.label_objs[self.curr_selection]
@@ -61,12 +64,19 @@ class Panel:
             bg_color = theme.get_hover_color()
         else:
             bg_color = theme.get_bg_color()
-        buffer.fill(bg_color, self.rect)
+        border_radius = theme.get_border_radius()
+        draw.rect(
+            buffer,
+            bg_color,
+            self.rect,
+            border_radius=border_radius
+        )
         draw.rect(
             buffer, 
             theme.get_border_color(), 
             self.rect, 
-            theme.get_border_width()
+            theme.get_border_width(),
+            border_radius
         )
         if render_label:
             label = theme.large_text(self.curr_label())

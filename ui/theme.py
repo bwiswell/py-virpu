@@ -9,6 +9,7 @@ class Theme:
                     hover_color:Tuple[int, int, int],
                     border_color:Tuple[int, int, int],
                     border_width:Tuple[int, int, int],
+                    border_radius:int=10,
                     font_name:str=None,
                     small_font_size:int=12,
                     medium_font_size:int=18,
@@ -19,6 +20,7 @@ class Theme:
         self.hover_color = hover_color
         self.border_color = border_color
         self.border_width = border_width
+        self.border_radius = border_radius
         self.small_font = SysFont(font_name, small_font_size)
         self.medium_font = SysFont(font_name, medium_font_size)
         self.large_font = SysFont(font_name, large_font_size)
@@ -36,6 +38,9 @@ class Theme:
     def get_border_width(self) -> int:
         return self.border_width
 
+    def get_border_radius(self) -> int:
+        return self.border_radius
+
     def get_text_color(self) -> Tuple[int, int, int]:
         return self.text_color
 
@@ -50,6 +55,9 @@ class Theme:
 
     def set_border_width(self, border_width:int) -> None:
         self.border_width = border_width
+
+    def set_border_radius(self, border_radius:int) -> None:
+        self.border_radius = border_radius
 
     def set_text_color(self, text_color:Tuple[int, int, int]) -> None:
         self.text_color = text_color

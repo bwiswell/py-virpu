@@ -28,8 +28,9 @@ class Canvas:
         self.core_data.set_data('ticks', curr_tick)
 
     def redraw(self) -> None:
-        # TODO: Implement redraw function for the canvas
         buffer = self.graphics.clear_canvas_buffer()
         theme = self.core_data.get_data('canvas-theme')
-        # Pass to components and wires
-        pass
+        for component in self.components:
+            component.render(buffer, theme)
+        for wire in self.wires:
+            wire.render(buffer, theme)
