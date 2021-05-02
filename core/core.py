@@ -7,15 +7,16 @@ from .canvas import Canvas
 from .controller import Controller
 from .coredata import CoreData
 from .graphics import Graphics
-from ..components.component import Component
 from ..components.constant import Constant
 from ..components.memory import Memory
+from ..corium import corium
 from ..panels.button import Button
 from ..panels.valuepanel import ValuePanel
 from ..ui.ui import UI
 
 class Core:
     def __init__(self):
+        corium.init()
         pg.init()
         self.core_data = CoreData()
         self.graphics = Graphics(self.core_data)
