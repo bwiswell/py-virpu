@@ -13,12 +13,32 @@ class Constant(Component):
     SIZE = (300, 200)
 
     def __init__(self):
-        data_port = IOPort('data', 'any')
-        config_labels = ['Bit Length?', 'Signed?']
-        config_options = [[4, 8, 16, 32], ['signed', 'unsigned']]
-        config_getters = [self.get_data_width, self.get_signed_str]
-        config_setters = [self.set_data_width, self.set_signed_str]
-        config = Configuration(config_labels, config_options, config_getters, config_setters)
+        data_port = IOPort('data', 'any', 'out')
+        config_labels = [
+                            'Bits', 
+                            'Signed', 
+                            'Value'
+                        ]
+        config_options = [
+                            ['-', '+'], 
+                            [True, False], 
+                            ['-', '+']
+                        ]
+        config_getters = [
+                            self.get_data_width, 
+                            self.get_signed, 
+                            self.get_value
+                        ]
+        config_setters = [
+                            self.incr_data_width, 
+                            self.set_signed,
+                            self.incr_value
+                        ]
+        config = Configuration(
+                                config_labels, 
+                                config_options, 
+                                config_getters, 
+                                config_setters)
         Component.__init__(self,
                             Constant.NAME,
                             [],
@@ -31,21 +51,28 @@ class Constant(Component):
         self.value = Signal()
 
     def get_value(self) -> Signal:
-        return self.get_output_value('data')
+        return self.value
 
     def get_data_width(self) -> int:
         return self.value.data_width
 
-    def get_signed_str(self) -> str:
-        return self.value.get_signed_str()
+    def get_signed(self) -> bool:
+        return self.value.get_signed()
 
-    def set_value(self, value:Signal) -> None:
-        self.set_output_value('data', value)
+    def incr_value(self, dir:str) -> None:
+        self.value.incr_val(dir)
 
-    def set_data_width(self, data_width:int) -> None:
-        self.out_by_id['data'].set_data_width(data_width)
-        self.value = self.out_by_id['data'].get_value()
+    def incr_data_width(self, dir:str) -> None:
+        if dir == '-':
+            new_dw = max(1, self.get_data_width() - 1)
+        else:
+            new_dw = min(32, self.get_data_width() + 1)
+        self.out_by_id['data'].set_data_width(new_dw)
+        self.value = self.get_output_value('data')
 
-    def set_signed_str(self, signed_str:str) -> None:
-        self.out_by_id['data'].set_signed_str(signed_str)
-        self.value = self.out_by_id['data'].get_value()
+    def set_signed(self, signed:bool) -> None:
+        self.out_by_id['data'].set_signed(signed)
+        self.value = self.get_output_value('data')
+
+    def execute(self) -> None:
+        self.set_output_value('data', self.value)

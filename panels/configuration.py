@@ -7,7 +7,10 @@ from .button import Button
 from .panel import Panel
 from ..ui.theme import Theme
 
-def dummy_fn(event:Event) -> None:
+def dummy_getter() -> object:
+    return 'N/A'
+
+def dummy_on_click(event:Event) -> None:
     pass
 
 class Configuration(Panel):
@@ -17,7 +20,7 @@ class Configuration(Panel):
     def __init__(self, 
                     config_labels:List[str]=['N/A'],
                     config_options:List[List[object]]=[[]],
-                    config_getters:List[Callable[[], object]]=[],
+                    config_getters:List[Callable[[], object]]=[dummy_getter],
                     config_setters:List[Callable[[object], None]]=[],
                 ):
         Panel.__init__(self, config_labels)
@@ -38,7 +41,6 @@ class Configuration(Panel):
     def create_buttons(self) -> None:
         self.buttons.clear()
         curr_ops = self.curr_options()
-        setter = self.curr_setter()
         n_ops = len(curr_ops)
         if n_ops > 0:
             x_off = Configuration.DEF_SPACING
@@ -50,7 +52,7 @@ class Configuration(Panel):
             for op in curr_ops:
                 op_btn = Button(
                                     [op], 
-                                    [dummy_fn], 
+                                    [dummy_on_click], 
                                     (op_x, op_y), 
                                     (op_w, op_h)
                                 )
@@ -83,13 +85,14 @@ class Configuration(Panel):
 
     def render(self, buffer:Surface, theme:Theme) -> None:
         super().render(buffer, theme, render_label=False)
-        y_off = self.h // 3
-        label = theme.large_text(self.curr_label())
+        getter = self.curr_getter()
+        curr_val = getter()
+        label = f'{self.curr_label()}: {curr_val}'
+        label = theme.large_text(label)
         label_x = self.rect.centerx - label.get_width() // 2
+        y_off = self.h // 3
         label_y = self.y + y_off - label.get_height() // 2
         buffer.blit(label, (label_x, label_y))
         if len(self.buttons) > 0:
-            getter = self.curr_getter()
-            curr_value = getter()
             for op_btn in self.buttons:
-                op_btn.render(buffer, theme, curr_value == op_btn.curr_label())
+                op_btn.render(buffer, theme, curr_val == op_btn.curr_label())

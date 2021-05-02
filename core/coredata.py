@@ -27,7 +27,8 @@ class CoreData:
                 active_color=(191, 191, 191),
                 border_color=(0, 0, 0),
                 border_width = 2,
-            )
+            ),
+            'wire-start': None
         }
 
     def get_data(self, data_id:str) -> Union[object, None]:

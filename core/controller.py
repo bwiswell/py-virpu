@@ -4,6 +4,8 @@ from pygame.event import Event
 from .coredata import CoreData
 from .graphics import Graphics
 from .canvas import Canvas
+from ..components.ioport import IOPort
+from ..components.wire import Wire
 from ..ui.ui import UI
 
 class Controller:
@@ -20,26 +22,56 @@ class Controller:
 
     def handle_mousedown(self, event:Event) -> None:
         ui_target = self.ui.at_pos(event.pos)
-        placing = self.core_data.get_data('placing')
         canvas_target = self.canvas.at_pos(event.pos)
+        placing = self.core_data.get_data('placing')
         if ui_target is not None:
+            was_placing = self.core_data.get_data('placing')
+            self.canvas.remove_wires(was_placing)
             self.core_data.set_data('placing', None)
+            self.core_data.set_data('wire-start', None)
             ui_target.handle_click(event)
+        elif canvas_target is not None:
+            was_placing = self.core_data.get_data('placing')
+            self.canvas.remove_wires(was_placing)
+            self.core_data.set_data('placing', None)
+            config = canvas_target.get_configuration()
+            self.ui.register_panel('comp-config', (0, 0), config)
+            if isinstance(canvas_target, IOPort):
+                if event.button == 1:
+                    if canvas_target.port_dir == 'out':
+                        self.core_data.set_data('wire-start', canvas_target)
+                    else:
+                        curr_start = self.core_data.get_data('wire-start')
+                        self.core_data.set_data('wire-start', None)
+                        if curr_start is not None:
+                            if Wire.compatible(curr_start, canvas_target):
+                                wire = Wire(curr_start, canvas_target)
+                                self.canvas.add_wire(wire)
+                elif event.button == 3:
+                    self.core_data.set_data('wire-start', None)
+                    self.canvas.remove_wires_from_port(canvas_target)
+            else:
+                if event.button == 3:
+                    self.canvas.remove_component(canvas_target)
+                    self.core_data.set_data('placing', canvas_target)
         elif placing is not None:
             placing.set_center(event.pos)
             self.canvas.add_component(placing)
             self.core_data.set_data('placing', None)
-        elif canvas_target is not None:
-            config = canvas_target.get_configuration()
-            self.ui.register_panel('comp-config', (0, 0), config)
         else:
             self.ui.unregister_panel('comp-config')
+            self.core_data.set_data('wire-start', None)
 
     def handle_keydown(self, event:Event) -> None:
         if event.key == pg.K_ESCAPE:
             self.core_data.set_data('running', False)
         elif event.key == pg.K_SPACE:
             self.canvas.tick()
+        elif event.key == pg.K_DELETE:
+            was_placing = self.core_data.get_data('placing')
+            self.canvas.remove_wires(was_placing)
+            self.core_data.set_data('placing', None)
+            self.ui.unregister_panel('comp-config')
 
     def handle_hover(self) -> None:
         mouse_pos = pg.mouse.get_pos()

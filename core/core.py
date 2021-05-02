@@ -9,6 +9,7 @@ from .coredata import CoreData
 from .graphics import Graphics
 from ..components.constant import Constant
 from ..components.memory import Memory
+from ..components.opdecoder import Opdecoder
 from ..corium import corium
 from ..panels.button import Button
 from ..panels.valuepanel import ValuePanel
@@ -30,27 +31,31 @@ class Core:
         self.load_ui()
         self.run()
 
+    def new_component(self, component_type:Type) -> None:
+        comp = component_type()
+        self.core_data.set_data('placing', comp)
+        config = comp.get_configuration()
+        self.ui.register_panel('comp-config', (0, 0), config)
+
     def load_ui(self) -> None:
         def get_ticks(): return self.core_data.get_data('ticks')
         tick_panel = ValuePanel(['Tick Counter'], [get_ticks])
         self.ui.register_panel('ticks', (-1, 0), tick_panel)
 
-        def create_btn_from_types(types:List[Type]) -> Button:
-            add_comp_labels = []
-            add_comp_on_clicks = []
-            for comp_type in types:
-                add_comp_labels.append(comp_type.NAME)
-                def add_comp_fn(event:Event) -> None:
-                    comp = comp_type()
-                    self.core_data.set_data('placing', comp)
-                    config = comp.get_configuration()
-                    self.ui.register_panel('comp-config', (0, 0), config)
-                add_comp_on_clicks.append(add_comp_fn)
-            return Button(add_comp_labels, add_comp_on_clicks)
-
-        module_btn = create_btn_from_types([Memory])       
+        module_labels = ['Memory', 'Opdecoder']
+        def add_memory(event:Event) -> None:
+            self.new_component(Memory)
+        def add_opdecoder(event:Event) -> None:
+            self.new_component(Opdecoder)
+        module_on_clicks = [add_memory, add_opdecoder]
+        module_btn = Button(module_labels, module_on_clicks)
         self.ui.register_panel('add-module', (-1, 1), module_btn)
-        io_btn = create_btn_from_types([Constant])
+
+        io_labels = ['Constant']
+        def add_constant(event:Event) -> None:
+            self.new_component(Constant)
+        io_on_clicks = [add_constant]
+        io_btn = Button(io_labels, io_on_clicks)
         self.ui.register_panel('add-io', (-1, 2), io_btn)
 
     def run(self) -> None:

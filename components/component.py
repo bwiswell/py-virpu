@@ -61,8 +61,14 @@ class Component(Panel):
     def get_input_value(self, in_port_id:str) -> Signal:
         return self.in_by_id[in_port_id].get_value()
 
+    def get_in_port(self, in_port_id:str) -> IOPort:
+        return self.in_by_id[in_port_id]
+
     def get_output_value(self, out_port_id:str) -> Signal:
         return self.out_by_id[out_port_id].get_value()
+
+    def get_out_port(self, out_port_id:str) -> IOPort:
+        return self.out_by_id[out_port_id]
 
     def set_input_value(self, in_port_id:str, value:Signal) -> None:
         self.in_by_id[in_port_id].set_value(value)

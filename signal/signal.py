@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from math import pow
 from typing import Tuple
 
 from bitarray import bitarray
@@ -42,13 +43,23 @@ class Signal:
         else:
             return signal
 
-    def get_signed_str(self) -> str:
-        return 'signed' if self.signed else 'unsigned'
+    def min_val(self) -> int:
+        return int(-pow(2, self.data_width / 2)) if self.signed else 0
+
+    def max_val(self) -> int:
+        power = self.data_width / 2 if self.signed else self.data_width
+        return int(pow(2, power) - 1)
+
+    def get_signed(self) -> bool:
+        return self.signed
 
     def __str__(self) -> str:
         type_text = f'{"s" if self.signed else "u"}'
         type_text += f'{self.data_width}'
         return f'{self.value} ({type_text})'
+
+    def __getitem__(self, key:object) -> bitarray:
+        return self.bits[key]
 
     def is_nonzero(self) -> bool:
         return self.bits.any()
@@ -90,3 +101,15 @@ class Signal:
     def __sub__(self, other:Signal) -> Signal:
         diff_signal, _ = self.minus(other)
         return diff_signal
+
+    def incr_val(self, dir:str) -> None:
+        if dir == '+':
+            new_val = self.value + 1
+            if new_val > self.max_val():
+                new_val = self.min_val()
+        else:
+            new_val = self.value - 1
+            if new_val < self.min_val():
+                new_val = self.max_val()
+        self.value = new_val
+        self.bits = int2ba(new_val, self.data_width, signed=self.signed)

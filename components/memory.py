@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from .component import Component
 from .ioport import IOPort
 from ..signal.signal import Signal
@@ -14,8 +12,8 @@ class Memory(Component):
     MAX_MEM = 65536
 
     def __init__(self):
-        address_port = IOPort('address', 'address', 16, False)
-        data_port = IOPort('data', 'data')
+        address_port = IOPort('address', 'address', 'in', 16, False)
+        data_port = IOPort('data', 'data', 'out')
         Component.__init__(self,
                             Memory.NAME,
                             [address_port],
