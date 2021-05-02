@@ -32,10 +32,20 @@ class Signal:
     def sign_extend(cls, signal:Signal, target_width:int=32) -> Signal:
         return Signal(signal.value, target_width)
 
+    @classmethod
+    def zero_extend(cls, signal:Signal, target_width:int=32) -> Signal:
+        n_zeros = target_width - signal.data_width
+        if n_zeros > 0:
+            zeros = bitarray(''.join(['0' for _ in range(n_zeros)]))
+            value = ba2int(zeros + signal.bits, signal.signed)
+            return Signal(value, target_width, signal.signed)
+        else:
+            return signal
+
     def __str__(self) -> str:
-        type_text = f'{"un" if not self.signed else ""}signed '
-        type_text += f'{self.data_width}-bit int'
-        return f'{self.value} + ({type_text})'
+        type_text = f'{"u" if not self.signed else "s"}'
+        type_text += f'{self.data_width}'
+        return f'{self.value} ({type_text})'
 
     def is_nonzero(self) -> bool:
         return self.bits.any()

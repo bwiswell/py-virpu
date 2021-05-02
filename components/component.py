@@ -4,6 +4,7 @@ from typing import List, Tuple, Union
 from pygame import Rect, Surface
 
 from .ioport import IOPort
+from ..panels.configuration import Configuration
 from ..panels.panel import Panel
 from ..signal.signal import Signal
 from ..ui.theme import Theme
@@ -15,7 +16,8 @@ class Component(Panel):
                     out_ports:List[IOPort],
                     cycles:int, 
                     pos:Tuple[int, int], 
-                    size:Tuple[int, int]
+                    size:Tuple[int, int],
+                    configuration:Configuration=Configuration()
                 ):
         Panel.__init__(self, [comp_name], pos, size)
 
@@ -35,6 +37,8 @@ class Component(Panel):
         self.cycles = cycles
         self.cycle_counter = cycles
 
+        self.configuration = configuration
+
     def repos(self, new_pos:Tuple[int, int]) -> None:
         super().repos(new_pos)
         bb_x = new_pos[0] - IOPort.SIZE[0] // 2
@@ -51,8 +55,17 @@ class Component(Panel):
             out_port.repos((out_x, out_y))
             out_y += self.out_y_off
 
+    def get_configuration(self) -> Configuration:
+        return self.configuration
+
     def get_input_value(self, in_port_id:str) -> Signal:
         return self.in_by_id[in_port_id].get_value()
+
+    def get_output_value(self, out_port_id:str) -> Signal:
+        return self.out_by_id[out_port_id].get_value()
+
+    def set_input_value(self, in_port_id:str, value:Signal) -> None:
+        self.in_by_id[in_port_id].set_value(value)
 
     def set_output_value(self, out_port_id:str, value:Signal) -> None:
         self.out_by_id[out_port_id].set_value(value)

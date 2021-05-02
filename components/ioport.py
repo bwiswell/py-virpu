@@ -1,5 +1,6 @@
 from typing import Tuple
 
+from ..panels.configuration import Configuration
 from ..panels.hoverpanel import HoverPanel
 from ..signal.signal import Signal
 
@@ -10,16 +11,33 @@ class IOPort(HoverPanel):
     def __init__(self, 
                     port_id:str,
                     port_type:str,
-                    data_width:int=32
+                    data_width:int=32,
+                    signed:bool=True
                 ):
-        HoverPanel.__init__(self, [port_id], [self.get_value], size=IOPort.SIZE)
+        HoverPanel.__init__(
+                            self, 
+                            [port_id], 
+                            [self.get_value], 
+                            size=IOPort.SIZE
+                        )
         self.port_id = port_id
         self.port_type = port_type
         self.data_width = data_width
-        self.value = Signal(value=0, data_width=data_width)
+        self.value = Signal(0, data_width, signed)
+        self.configuration = Configuration()
+
+    def get_configuration(self) -> Configuration:
+        return self.configuration
 
     def get_value(self) -> Signal:
         return self.value
+
+    def set_data_width(self, data_width:int) -> None:
+        self.data_width = data_width
+        self.value = Signal(0, data_width, self.value.signed)
+
+    def set_signed(self, signed:bool) -> None:
+        self.value = Signal(0, self.data_width, signed)
 
     def set_value(self, value:Signal) -> None:
         self.value = value

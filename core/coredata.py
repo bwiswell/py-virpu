@@ -8,6 +8,7 @@ class CoreData:
             'ticks': 0,
             'running': True,
             'placing': None,
+            'comp-config': None,
             'canvas-theme': Theme(
                 bg_color=(0, 0, 0),
                 hover_color=(0, 0, 0),

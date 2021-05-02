@@ -22,8 +22,11 @@ class Theme:
         self.border_width = border_width
         self.border_radius = border_radius
         self.small_font = SysFont(font_name, small_font_size)
+        self.small_bold = SysFont(font_name, small_font_size, True)
         self.medium_font = SysFont(font_name, medium_font_size)
+        self.medium_bold = SysFont(font_name, medium_font_size, True)
         self.large_font = SysFont(font_name, large_font_size)
+        self.large_bold = SysFont(font_name, large_font_size, True)
         self.text_color = text_color
 
     def get_bg_color(self) -> Tuple[int, int, int]:
@@ -65,11 +68,14 @@ class Theme:
     def render_text(self, text_obj:object, font:Font) -> Surface:
         return font.render(str(text_obj), True, self.text_color)
 
-    def small_text(self, text_obj:object) -> Surface:
-        return self.render_text(text_obj, self.small_font)
+    def small_text(self, text_obj:object, bold:bool=False) -> Surface:
+        font = self.small_bold if bold else self.small_font
+        return self.render_text(text_obj, font)
 
-    def medium_text(self, text_obj:object) -> Surface:
-        return self.render_text(text_obj, self.medium_font)
+    def medium_text(self, text_obj:object, bold:bool=False) -> Surface:
+        font = self.medium_bold if bold else self.medium_font
+        return self.render_text(text_obj, font)
         
-    def large_text(self, text_obj:object) -> Surface:
-        return self.render_text(text_obj, self.large_font)
+    def large_text(self, text_obj:object, bold:bool=False) -> Surface:
+        font = self.large_bold if bold else self.large_font
+        return self.render_text(text_obj, font)

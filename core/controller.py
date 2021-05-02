@@ -7,22 +7,33 @@ from .canvas import Canvas
 from ..ui.ui import UI
 
 class Controller:
-    def __init__(self, core_data:CoreData, graphics:Graphics, canvas:Canvas, ui:UI):
+    def __init__(self, 
+                    core_data:CoreData, 
+                    graphics:Graphics, 
+                    canvas:Canvas, 
+                    ui:UI
+                ):
         self.core_data = core_data
         self.graphics = graphics
         self.canvas = canvas
         self.ui = ui
 
     def handle_mousedown(self, event:Event) -> None:
-        ui_button = self.ui.button_at_pos(event.pos)
+        ui_target = self.ui.at_pos(event.pos)
         placing = self.core_data.get_data('placing')
-        if ui_button is not None:
+        canvas_target = self.canvas.at_pos(event.pos)
+        if ui_target is not None:
             self.core_data.set_data('placing', None)
-            ui_button.handle_click(event)
+            ui_target.handle_click(event)
         elif placing is not None:
             placing.set_center(event.pos)
             self.canvas.add_component(placing)
             self.core_data.set_data('placing', None)
+        elif canvas_target is not None:
+            config = canvas_target.get_configuration()
+            self.ui.register_panel('comp-config', (0, 0), config)
+        else:
+            self.ui.unregister_panel('comp-config')
 
     def handle_keydown(self, event:Event) -> None:
         if event.key == pg.K_ESCAPE:
@@ -33,8 +44,11 @@ class Controller:
     def handle_hover(self) -> None:
         mouse_pos = pg.mouse.get_pos()
         ui_target = self.ui.at_pos(mouse_pos)
+        canvas_target = self.canvas.at_pos(mouse_pos)
         if ui_target is not None:
             ui_target.handle_hover()
+        elif canvas_target is not None:
+            canvas_target.handle_hover()
 
     def render_overlay(self) -> None:
         buffer = self.graphics.clear_overlay_buffer()

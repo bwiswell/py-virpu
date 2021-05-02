@@ -1,10 +1,9 @@
-from math import floor
-from typing import Tuple, Union
+from typing import List, Tuple
 
-from ..panels.button import Button
-from ..panels.panel import Panel
 from ..core.coredata import CoreData
 from ..core.graphics import Graphics
+from ..panels.configuration import Configuration
+from ..panels.panel import Panel
 
 class UI:
 
@@ -16,14 +15,13 @@ class UI:
         self.graphics = graphics
 
         self.size = self.core_data.get_data('screen-size')
-        self.grid_x_scale = floor(self.size[0] / UI.COLS)
-        self.grid_y_scale = floor(self.size[1] / UI.ROWS)
+        self.grid_x_scale = self.size[0] // UI.COLS
+        self.grid_y_scale = self.size[1] // UI.ROWS
         self.widget_size = (self.grid_x_scale // 2, self.grid_y_scale // 2)
         self.widget_x_off = self.grid_x_scale // 4
         self.widget_y_off = self.grid_y_scale // 4
 
         self.panels = {}
-        self.buttons = {}
         self.grid_positions = {}
 
     def widget_pos(self, grid_pos:Tuple[int, int]) -> Tuple[int, int]:
@@ -35,8 +33,8 @@ class UI:
 
     def resize(self) -> None:
         self.size = self.core_data.get_data('screen-size')
-        self.grid_x_scale = floor(self.size[0] / UI.COLS)
-        self.grid_y_scale = floor(self.size[1] / UI.ROWS)
+        self.grid_x_scale = self.size[0] // UI.COLS
+        self.grid_y_scale = self.size[1] // UI.ROWS
         self.widget_size = (self.grid_x_scale // 2, self.grid_y_scale // 2)
         self.widget_x_off = self.grid_x_scale // 4
         self.widget_y_off = self.grid_y_scale // 4
@@ -45,11 +43,6 @@ class UI:
             panel_grid_pos = self.grid_positions[panel_id]
             new_pos = self.widget_pos(panel_grid_pos)
             panel.repos_resize(new_pos, self.widget_size)
-
-        for button_id, button in self.buttons.items():
-            button_grid_pos = self.grid_positions[button_id]
-            new_pos = self.widget_pos(button_grid_pos)
-            button.repos_resize(new_pos, self.widget_size)
 
     def register_panel(self, 
                         panel_id:str, 
@@ -65,31 +58,10 @@ class UI:
         self.panels.pop(panel_id, None)
         self.grid_positions.pop(panel_id, None)
 
-    def register_button(self,
-                        button_id:str,
-                        grid_pos:Tuple[int, int],
-                        button:Button
-                    ) -> None:
-        button_pos = self.widget_pos(grid_pos)
-        button.repos_resize(button_pos, self.widget_size)
-        self.panels[button_id] = button
-        self.buttons[button_id] = button
-        self.grid_positions[button_id] = grid_pos
-
-    def unregister_button(self, button_id:str):
-        self.panels.pop(button_id, None)
-        self.buttons.pop(button_id, None)
-        self.grid_positions.pop(button_id, None)
-
-    def at_pos(self, pos:Tuple[int, int]) -> Union[Panel, None]:
+    def at_pos(self, pos:Tuple[int, int]) -> Panel:
         for panel in self.panels.values():
             if panel.collides(pos):
                 return panel
-
-    def button_at_pos(self, pos:Tuple[int, int]) -> Union[Button, None]:
-        for button in self.buttons.values():
-            if button.collides(pos):
-                return button
 
     def redraw(self) -> None:
         buffer = self.graphics.clear_ui_buffer()
