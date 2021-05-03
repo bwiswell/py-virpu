@@ -7,23 +7,22 @@ class Decoder(Component):
 
     NAME = 'Decoder'
     CYCLES = 1
-    SIZE = (300, 400)
 
     def __init__(self):
         ins_port = IOPort('ins', 'data', 'in', 32, False)
         opcode_port = IOPort('opcode', 'address', 'out', 8, False)
-        imm_port = IOPort('imm', 'data', 'out', 16)
         reg_a_port = IOPort('reg-a', 'control', 'out', 4, False)
         reg_b_port = IOPort('reg-b', 'control', 'out', 4, False)
         reg_w_port = IOPort('reg-w', 'control', 'out', 4, False)
+        imm_port = IOPort('imm', 'data', 'out', 16)
 
         inputs = [ins_port]
         outputs = [
                     opcode_port,
-                    imm_port,
                     reg_a_port,
                     reg_b_port,
-                    reg_w_port
+                    reg_w_port,
+                    imm_port
                 ]
 
         Component.__init__(self,
@@ -31,8 +30,6 @@ class Decoder(Component):
                             inputs,
                             outputs,
                             Decoder.CYCLES,
-                            (0, 0),
-                            Decoder.SIZE
                         )
         
     def execute(self) -> None:

@@ -4,7 +4,7 @@ from ..signal.signal import Signal
 
 class IOPort(HoverPanel):
 
-    SIZE = (100, 50)
+    SIZE = (100, 30)
 
     def __init__(self, 
                     port_id:str,

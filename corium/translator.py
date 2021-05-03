@@ -63,8 +63,3 @@ def translate_line(assembly_line:str) -> bitarray:
 
 def translate(assembly_lines:List[str]) -> List[bitarray]:
     return [translate_line(line) for line in assembly_lines]
-
-corium.init()
-line_a = 'ADD 3 4 5'
-line_b = 'SUB 3 5 4'
-print(translate([line_a, line_b]))

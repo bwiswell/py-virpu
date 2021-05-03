@@ -7,13 +7,12 @@ class Opdecoder(Component):
 
     NAME = 'Opdecoder'
     CYCLES = 1
-    SIZE = (300, 400)
 
     OPCODES = 16
 
     def __init__(self):
         opcode_port = IOPort('opcode', 'address', 'in', 8, False)
-        reg_w_port = IOPort('reg-w', 'control', 'out', 1, False)
+        reg_w_port = IOPort('reg-w-con', 'control', 'out', 1, False)
         alu_a_port = IOPort('alu-a-src', 'control', 'out', 1, False)
         alu_b_port = IOPort('alu-b-src', 'control', 'out', 2, False)
         alu_op_port = IOPort('alu-op', 'control', 'out', 4, False)
@@ -36,8 +35,6 @@ class Opdecoder(Component):
                             inputs,
                             outputs,
                             Opdecoder.CYCLES,
-                            (0, 0),
-                            Opdecoder.SIZE
                         )
 
         raw_bitarrays = corium.get_control_bits()
@@ -51,7 +48,7 @@ class Opdecoder(Component):
 
         reg_w_bits = data[:1]
         reg_w_sig = Signal.from_bits(reg_w_bits, 1, False)
-        self.set_output_value('reg-w', reg_w_sig)
+        self.set_output_value('reg-w-con', reg_w_sig)
 
         alu_a_bits = data[1:2]
         alu_a_sig = Signal.from_bits(alu_a_bits, 1, False)

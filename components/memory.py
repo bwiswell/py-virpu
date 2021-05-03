@@ -10,7 +10,6 @@ class Memory(Component):
 
     NAME = 'Memory'
     CYCLES = 4
-    SIZE = (300, 400)
 
     DEF_MEM = 65536
     MAX_MEM = 65536
@@ -23,8 +22,6 @@ class Memory(Component):
                             [address_port],
                             [data_port],
                             Memory.CYCLES,
-                            (0, 0),
-                            Memory.SIZE
                         )
         self.data = [Signal(value=i) for i in range(Memory.DEF_MEM)]
 

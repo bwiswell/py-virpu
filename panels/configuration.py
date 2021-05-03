@@ -10,6 +10,9 @@ from ..ui.theme import Theme
 def dummy_getter() -> object:
     return 'N/A'
 
+def dummy_setter(obj:object) -> None:
+    pass
+
 def dummy_on_click(event:Event) -> None:
     pass
 
@@ -21,7 +24,7 @@ class Configuration(Panel):
                     config_labels:List[str]=['N/A'],
                     config_options:List[List[object]]=[[]],
                     config_getters:List[Callable[[], object]]=[dummy_getter],
-                    config_setters:List[Callable[[object], None]]=[],
+                    config_setters:List[Callable[[object], None]]=[dummy_setter],
                 ):
         Panel.__init__(self, config_labels)
         self.config_options = config_options
@@ -62,6 +65,17 @@ class Configuration(Panel):
     def repos(self, new_pos:Tuple[int, int]) -> None:
         super().repos(new_pos)
         self.create_buttons()
+
+    def add_config(self,
+                    config_label:str,
+                    config_options:List[object]=[],
+                    config_getter:Callable[[], object]=dummy_getter,
+                    config_setter:Callable[[object], None]=dummy_setter
+                ) -> None:
+        self.label_objs.append(config_label)
+        self.config_options.append(config_options)
+        self.config_getters.append(config_getter)
+        self.config_setters.append(config_setter)
 
     def cycle_selection(self) -> None:
         super().cycle_selection()
