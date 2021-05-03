@@ -1,3 +1,7 @@
+from typing import List
+
+from bitarray import bitarray
+
 from .component import Component
 from .ioport import IOPort
 from ..signal.signal import Signal
@@ -23,6 +27,13 @@ class Memory(Component):
                             Memory.SIZE
                         )
         self.data = [Signal(value=i) for i in range(Memory.DEF_MEM)]
+
+    def load_program(self, program:List[bitarray]) -> None:
+        self.get_out_port('data').set_signed(False)
+        signals = [Signal.from_bits(bitarr, signed=False) for bitarr in program]
+        rem_mem = Memory.MAX_MEM - len(signals)
+        signals.extend([Signal(value=i, signed=False) for i in range(rem_mem)])
+        self.data = signals
         
     def execute(self) -> None:
         address = self.get_input_value('address')

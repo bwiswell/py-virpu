@@ -10,13 +10,13 @@ from .graphics import Graphics
 from ..components.constant import Constant
 from ..components.memory import Memory
 from ..components.opdecoder import Opdecoder
-from ..corium import corium
+from ..corium import corium, translator
 from ..panels.button import Button
 from ..panels.valuepanel import ValuePanel
 from ..ui.ui import UI
 
 class Core:
-    def __init__(self):
+    def __init__(self, program:List[str]=None):
         corium.init()
         pg.init()
         self.core_data = CoreData()
@@ -29,6 +29,14 @@ class Core:
                                         self.ui
                                     )
         self.load_ui()
+
+        if program is not None:
+            translation = translator.translate(program)
+            prog_mem = Memory()
+            prog_mem.load_program(translation)
+            prog_mem.set_center((400, 400))
+            self.canvas.add_component(prog_mem)
+
         self.run()
 
     def new_component(self, component_type:Type) -> None:

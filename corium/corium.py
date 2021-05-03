@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Tuple, Union
 from pickle import load
 from os.path import dirname, realpath
 
@@ -38,9 +38,13 @@ def get_opcode(opcode_alias:Union[str, int]) -> int:
 def get_a_code(opcode_alias:Union[str, int]) -> str:
     return get_opcode(opcode_alias)['a-code']
 
-def get_args(opcode_alias:Union[str, int]) -> List[str]:
-    return get_opcode(opcode_alias)['arg-types']
+def get_arg_types(opcode_alias:Union[str, int]) -> List[str]:
+    arg_dests = get_opcode(opcode_alias)['arg-types']
+    return [arg.split('-')[0] for arg in arg_dests]
+
+def get_arg_dests(opcode:int) -> List[str]:
+    return get_opcode(opcode)['arg-types']        
 
 def get_m_code(opcode_alias:Union[str, int]) -> bitarray:
     value = get_opcode(opcode_alias)['m-code']
-    return int2ba(value, 8, False)
+    return int2ba(value, 8, signed=False)
