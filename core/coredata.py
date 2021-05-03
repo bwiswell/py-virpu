@@ -25,10 +25,10 @@ class CoreData:
             'overlay-theme': Theme(
                 bg_color=(255, 255, 255),
                 active_color=(191, 191, 191),
-                border_color=(0, 0, 0),
+                border_color=(127, 31, 31),
                 border_width = 2,
             ),
-            'wire-start': None
+            'wire': None
         }
 
     def get_data(self, data_id:str) -> Union[object, None]:

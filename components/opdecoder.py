@@ -1,5 +1,3 @@
-
-
 from .component import Component
 from .ioport import IOPort
 from ..corium import corium

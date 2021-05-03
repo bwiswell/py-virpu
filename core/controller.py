@@ -1,4 +1,5 @@
 import pygame as pg
+from pygame import mouse
 from pygame.event import Event
 
 from .coredata import CoreData
@@ -28,7 +29,7 @@ class Controller:
             was_placing = self.core_data.get_data('placing')
             self.canvas.remove_wires(was_placing)
             self.core_data.set_data('placing', None)
-            self.core_data.set_data('wire-start', None)
+            self.core_data.set_data('wire', None)
             ui_target.handle_click(event)
         elif canvas_target is not None:
             was_placing = self.core_data.get_data('placing')
@@ -39,16 +40,16 @@ class Controller:
             if isinstance(canvas_target, IOPort):
                 if event.button == 1:
                     if canvas_target.port_dir == 'out':
-                        self.core_data.set_data('wire-start', canvas_target)
+                        wire = Wire(canvas_target)
+                        self.core_data.set_data('wire', wire)
                     else:
-                        curr_start = self.core_data.get_data('wire-start')
-                        self.core_data.set_data('wire-start', None)
-                        if curr_start is not None:
-                            if Wire.compatible(curr_start, canvas_target):
-                                wire = Wire(curr_start, canvas_target)
-                                self.canvas.add_wire(wire)
+                        wire = self.core_data.get_data('wire')
+                        self.core_data.set_data('wire', None)
+                        if wire is not None and wire.compatible(canvas_target):
+                            wire.set_wire_out(canvas_target)
+                            self.canvas.add_wire(wire)
                 elif event.button == 3:
-                    self.core_data.set_data('wire-start', None)
+                    self.core_data.set_data('wire', None)
                     self.canvas.remove_wires_from_port(canvas_target)
             else:
                 if event.button == 3:
@@ -60,7 +61,9 @@ class Controller:
             self.core_data.set_data('placing', None)
         else:
             self.ui.unregister_panel('comp-config')
-            self.core_data.set_data('wire-start', None)
+            wire = self.core_data.get_data('wire')
+            if wire is not None:
+                wire.add_to_route(event.pos)
 
     def handle_keydown(self, event:Event) -> None:
         if event.key == pg.K_ESCAPE:
@@ -90,6 +93,9 @@ class Controller:
         if placing is not None:
             placing.set_center(mouse_pos)
             placing.render(buffer, theme)
+        wire = self.core_data.get_data('wire')
+        if wire is not None:
+            wire.render(buffer, theme, mouse_pos)
 
     def io_tick(self) -> None:
         for event in pg.event.get():

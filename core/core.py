@@ -8,6 +8,7 @@ from .controller import Controller
 from .coredata import CoreData
 from .graphics import Graphics
 from ..components.constant import Constant
+from ..components.decoder import Decoder
 from ..components.memory import Memory
 from ..components.opdecoder import Opdecoder
 from ..corium import corium, translator
@@ -50,12 +51,14 @@ class Core:
         tick_panel = ValuePanel(['Tick Counter'], [get_ticks])
         self.ui.register_panel('ticks', (-1, 0), tick_panel)
 
-        module_labels = ['Memory', 'Opdecoder']
+        module_labels = ['Decoder', 'Memory', 'Opdecoder']
+        def add_decoder(event:Event) -> None:
+            self.new_component(Decoder)
         def add_memory(event:Event) -> None:
             self.new_component(Memory)
         def add_opdecoder(event:Event) -> None:
             self.new_component(Opdecoder)
-        module_on_clicks = [add_memory, add_opdecoder]
+        module_on_clicks = [add_decoder, add_memory, add_opdecoder]
         module_btn = Button(module_labels, module_on_clicks)
         self.ui.register_panel('add-module', (-1, 1), module_btn)
 

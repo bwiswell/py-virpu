@@ -56,6 +56,8 @@ class Canvas:
         self.core_data.set_data('ticks', curr_tick)
         for component in self.components:
             component.tick()
+        for wire in self.wires:
+            wire.tick()
 
     def redraw(self) -> None:
         buffer = self.graphics.clear_canvas_buffer()
