@@ -57,6 +57,8 @@ class Component(Panel):
         self.out_ports = out_ports
         self.out_by_id = {out_port.id: out_port for out_port in out_ports}
 
+        self._width = 32
+        self._signed = False
         self._cycles = cycles
         self._counter = cycles
 
@@ -73,13 +75,13 @@ class Component(Panel):
         in_y_off = 0 if self._ins == 0 else self._h // self._ins
         in_y = self._y + in_y_off // 2 - IOPort.SIZE[1] // 2
         for in_port in self.in_ports:
-            in_port.repos((in_x, in_y))
+            in_port.pos = in_x, in_y
             in_y += in_y_off
         out_x = self._x + self._w - IOPort.SIZE[0] // 2
         out_y_off = 0 if self.outs == 0 else self._h // self.outs
         out_y = self._y + out_y_off // 2 - IOPort.SIZE[1] // 2
         for out_port in self.out_ports:
-            out_port.repos((out_x, out_y))
+            out_port.pos = out_x, out_y
             out_y += out_y_off
 
     def _get_pos(self) -> Tuple[int, int]:
@@ -102,7 +104,45 @@ class Component(Panel):
         super()._set_size(val)
         self.reposition_ports()
 
-    pos = property(_get_size, _set_size)
+    size = property(_get_size, _set_size)
+
+    def _get_width(self) -> int:
+        '''Get the bit width of the component.'''
+        return self._width
+
+    def _set_width(self, val:int) -> None:
+        '''Set the bit width of the component.'''
+        self._width = max(1, min(32, val))
+
+    width = property(_get_width, _set_width)
+
+    def _get_signed(self) -> bool:
+        '''Get the signage of the component.'''
+        return self._signed
+
+    def _set_signed(self, val:bool) -> None:
+        '''Set the signage of the component.'''
+        self._signed = val
+
+    signed = property(_get_signed, _set_signed)
+
+    @property
+    def cycles(self) -> int:
+        '''Get or set the number of cycles between component executions'''
+        return self._cycles
+
+    @cycles.setter
+    def cycles(self, val:int) -> None:
+        self._cycles = max(1, min(Component.MAX_CYCLES, val))
+
+    @property
+    def counter(self) -> int:
+        '''Get or set the number of cycles until next component execution'''
+        return self._counter
+
+    @counter.setter
+    def counter(self, val:int) -> None:
+        self._counter = max(1, min(self._cycles, val))
 
     def comp_size(self) -> Tuple[int, int]:
         '''Get the best size of the component for the number of IO ports.'''
@@ -122,7 +162,7 @@ class Component(Panel):
 
     def remove_port(self, port:IOPort) -> None:
         '''Remove an IO port from the component.'''
-        if port.port_dir == 'in':
+        if port.dir == 'in':
             self.in_ports.remove(port)
             self.in_by_id.pop(port.port_id)
             self.ins -= 1
@@ -131,41 +171,6 @@ class Component(Panel):
             self.out_by_id.pop(port.port_id)
             self.outs -= 1
         self.size = self.comp_size()
-
-    @property
-    def cycles(self) -> int:
-        '''Get or set the number of cycles between component executions'''
-        return self._cycles
-
-    @cycles.setter
-    def cycles(self, val:int) -> None:
-        self._cycles = max(1, min(Component.MAX_CYCLES, val))
-
-    def set_width(self, width:int) -> None:
-        '''
-        Set the bit width of the component.
-        
-        Set a new bit width for the component. Not all components support this
-        configuration option, and implementation is left to the descendants of
-        Component.
-
-        Parameters:
-            width: the new bit width of the component
-        '''
-        pass
-
-    def set_signed(self, signed:bool) -> None:
-        '''
-        Set the signage of the component.
-        
-        Set a new signage for the component. Not all components support this
-        configuration option, and implementation is left to the descendants of
-        Component.
-
-        Parameters:
-            signed: the new signage of the component
-        '''
-        pass
 
     def at_pos(self, pos:Tuple[int, int]) -> Union[Component, IOPort]:
         '''

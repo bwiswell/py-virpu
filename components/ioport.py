@@ -27,7 +27,7 @@ class IOPort(Panel):
                     signed:bool=True
                 ):
         '''
-        Initialize IO port object and extend Panel
+        Initialize IO port object and extend Panel.
         
         Parameters:
             id: a short name for the port

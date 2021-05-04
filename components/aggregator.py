@@ -2,83 +2,72 @@ from bitarray import bitarray
 
 from .component import Component
 from .ioport import IOPort
-from ..panels.configuration import Configuration
 from ..signal.signal import Signal
 
 class Aggregator(Component):
+    '''
+    Class to represent a bit aggregator that extends Component.
 
-    NAME = 'Aggregator'
-    CYCLES = 1
+    This class is a functional component that has 0 < n <= 32 1-bit unsigned
+    input ports which are combined into a single n-bit (un)signed output port.
+    No logic is performed on the individual bit signals.
+    '''
 
     def __init__(self):
+        '''Initialize Aggregator object and extend Component'''
         in_port = IOPort('bit-0', 'any', 'in', 1, False)
         out_port = IOPort('data', 'any', 'out', 1, False)
 
-        config_labels = [
-                            'Bits',
-                            'Signed'
-                        ]
-
-        config_options = [
-                            ['-', '+'],
-                            [True, False]
-                        ]
-
-        config_getters = [
-                            self.get_data_width,
-                            self.get_signed
-                        ]
-
-        config_setters = [
-                            self.incr_bits,
-                            self.set_signed
-                        ]
-        
-        config = Configuration(
-                                config_labels,
-                                config_options,
-                                config_getters,
-                                config_setters
-                            )
-
         Component.__init__(self,
-                            Aggregator.NAME,
-                            [in_port],
-                            [out_port],
-                            Aggregator.CYCLES,
-                            config
+                            comp_name='Aggregator',
+                            in_ports=[in_port],
+                            out_ports=[out_port],
+                            config_options='ws'
                         )
 
-    def get_data_width(self) -> int:
-        return self.get_out_port('data').data_width
+        self._width = 1
+        self._signed = False
 
-    def incr_bits(self, dir:str) -> None:
-        if dir == '-' and self.ins - 1 > 0:
-            new_dw = self.ins - 1
-            self.get_out_port('data').set_data_width(new_dw)
-            port_id = f'bit-{new_dw}'
-            port = self.get_in_port(port_id)
-            self.remove_port(port)
-        elif dir == '+' and self.ins + 1 <= 32:
-            new_dw = self.ins + 1
-            self.get_out_port('data').set_data_width(new_dw)
-            port_id = f'bit-{self.ins}'
+    def _get_width(self) -> int:
+        '''Get the bit width of the component.'''
+        return super()._get_width()
+
+    def _set_width(self, val:int) -> None:
+        '''Set the bit width of the component.'''
+        old_w = self._width
+        super()._set_width(val)
+        self.out_by_id['data'].width = self._width
+        if old_w < self._width:
+            port_id = f'bit-{old_w}'
             port = IOPort(port_id, 'any', 'in', 1, False)
             self.add_port(port)
+        elif old_w > self._width:
+            port_id = f'bit-{self._width}'
+            port = self.in_by_id[port_id]
+            self.remove_port(port)
 
-    def get_signed(self) -> bool:
-        return self.get_out_port('data').get_signed()
+    width = property(_get_width, _set_width)
 
-    def set_signed(self, signed:bool) -> None:
-        self.get_out_port('data').set_signed(signed)
+    def _get_signed(self) -> bool:
+        '''Get the signage of the component.'''
+        return super()._get_signed()
+
+    def _set_signed(self, val:bool) -> None:
+        '''Set the signage of the component.'''
+        super()._set_signed(val)
+        self.out_by_id['data'].signed = val
+
+    signed = property(_get_signed, _set_signed)
 
     def execute(self) -> None:
-        out_chr = ['1' if p.value.is_nonzero() else '0' for p in self.in_ports]
-        out_str = ''.join(out_chr)
-        out_bit = bitarray(out_str)
-        out_sig = Signal.from_bits(
-                                    out_bit, 
-                                    self.get_data_width(),
-                                    self.get_signed()
-                                )
-        self.set_output_value('data', out_sig)
+        '''
+        Execute the aggregator's functional logic.
+
+        The aggregator combines n 1-bit unsigned inputs into one n-bit
+        (un)signed output without performing any bit logic on the inputs.
+        '''
+        out_bits = bitarray(self._width)
+        for i in range(self._width):
+            out_bits[i] = self.in_ports[i].value[0]
+        out_val = Signal.from_bits(out_bits, self._width, self._signed)
+        self.out_by_id['data'].value = out_val
