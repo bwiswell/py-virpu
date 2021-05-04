@@ -5,75 +5,123 @@ from typing import List, Tuple, Union
 from pygame import Rect, Surface
 
 from .ioport import IOPort
-from ..panels.configuration import Configuration
 from ..panels.panel import Panel
-from ..signal.signal import Signal
 from ..ui.theme import Theme
 
 class Component(Panel):
+    '''
+    A class to represent functional logic components that extends Panel. 
+    
+    This is the base class for all functional logic components, and should not
+    be directly instantiated.
+
+    Attributes:
+        ins (int): the number of incoming IO ports (input ports)
+        outs (int): the number of outgoing IO ports (output ports)
+        in_ports (List[IOPort]): ordered list of the component's input ports
+        in_by_id (Dict[str, IOPort]): dict of the component's input ports by port ID
+        out_ports (List[IOPort]): ordered list of the component's output ports
+        out_by_id (Dict[str, IOPort]): dict of the component's output ports by port ID
+        cycles (int): the number of cycles between component executions
+        counter (int): the number of cycles until the component's next execution
+        config_options (str): the component's available configuration options
+        bounding_box (Rect): the minimum rectangle that contains the component and its IO ports
+    '''        
 
     MAX_CYCLES = 10
     WIDTH = 200
 
     def __init__(self, 
                     comp_name:str, 
-                    in_ports:List[IOPort],
-                    out_ports:List[IOPort],
-                    cycles:int, 
-                    configuration:Configuration=Configuration()
+                    in_ports:List[IOPort]=[],
+                    out_ports:List[IOPort]=[],
+                    cycles:int=1,
+                    config_options:str=''
                 ):
-        self.ins = len(in_ports)
-        self.outs = len(out_ports)
+        '''
+        Initialize Component object and extend Panel.
+
+        Parameters:
+            comp_name: the name of the component
+            in_ports: ordered list of the component's input ports
+            out_ports: ordered list of the component's output ports
+            cycles: the number of cycles between component executions
+            config_options: the component's available configuration options
+        '''
+        self._ins = len(in_ports)
+        self._outs = len(out_ports)
         Panel.__init__(self, [comp_name], (0, 0), self.get_size())
 
-        self.bounding_box = self.rect
-
         self.in_ports = in_ports
-        self.in_by_id = {in_port.port_id: in_port for in_port in in_ports}
+        self.in_by_id = {in_port.id: in_port for in_port in in_ports}
         self.out_ports = out_ports
-        self.out_by_id = {out_port.port_id: out_port for out_port in out_ports}
+        self.out_by_id = {out_port.id: out_port for out_port in out_ports}
+
+        self._cycles = cycles
+        self._counter = cycles
+
+        self.config_options = config_options
         
-        self.repos(self.pos)
+        self._bounding_box = None
 
-        self.cycles = cycles
-        self.cycle_counter = cycles
-
-        configuration.add_config('Cycles', config_getter=self.get_cycles)
-        self.configuration = configuration
-
-    def get_size(self) -> Tuple[int, int]:
-        return Component.WIDTH, ceil(max((1, self.ins, self.outs)) / 2.0) * 75
-
-    def repos(self, new_pos:Tuple[int, int]) -> None:
-        super().repos(new_pos)
-        bb_x = new_pos[0] - IOPort.SIZE[0] // 2
-        bb_w = self.w + IOPort.SIZE[0]
-        self.bounding_box = Rect(bb_x, self.y, bb_w, self.h)
-        in_x = self.x - IOPort.SIZE[0] // 2
-        in_y_off = 0 if self.ins == 0 else self.h // self.ins
-        in_y = self.y + in_y_off // 2 - IOPort.SIZE[1] // 2
+    def reposition_ports(self) -> None:
+        '''Reposition the component's IO ports.'''
+        bb_x = self._x - IOPort.SIZE[0] // 2
+        bb_w = self._w + IOPort.SIZE[0]
+        self._bounding_box = Rect(bb_x, self._y, bb_w, self._h)
+        in_x = self._x - IOPort.SIZE[0] // 2
+        in_y_off = 0 if self._ins == 0 else self._h // self._ins
+        in_y = self._y + in_y_off // 2 - IOPort.SIZE[1] // 2
         for in_port in self.in_ports:
             in_port.repos((in_x, in_y))
             in_y += in_y_off
-        out_x = self.x + self.w - IOPort.SIZE[0] // 2
-        out_y_off = 0 if self.outs == 0 else self.h // self.outs
-        out_y = self.y + out_y_off // 2 - IOPort.SIZE[1] // 2
+        out_x = self._x + self._w - IOPort.SIZE[0] // 2
+        out_y_off = 0 if self.outs == 0 else self._h // self.outs
+        out_y = self._y + out_y_off // 2 - IOPort.SIZE[1] // 2
         for out_port in self.out_ports:
             out_port.repos((out_x, out_y))
             out_y += out_y_off
 
+    def _get_pos(self) -> Tuple[int, int]:
+        '''Get the position of the component's top-left corner.'''
+        return self._pos
+
+    def _set_pos(self, val:Tuple[int, int]) -> None:
+        '''Set the position of the component's top-left corner.'''
+        super()._set_pos(val)
+        self.reposition_ports()
+
+    pos = property(_get_pos, _set_pos)
+
+    def _get_size(self) -> Tuple[int, int]:
+        '''Get the size of the component.'''
+        return self._size
+
+    def _set_size(self, val:Tuple[int, int]) -> None:
+        '''Set the size of the component.'''
+        super()._set_size(val)
+        self.reposition_ports()
+
+    pos = property(_get_size, _set_size)
+
+    def comp_size(self) -> Tuple[int, int]:
+        '''Get the best size of the component for the number of IO ports.'''
+        return Component.WIDTH, ceil(max((1, self._ins, self._outs)) / 2.0) * 75
+
     def add_port(self, port:IOPort) -> None:
-        if port.port_dir == 'in' and self.ins + 1 <= 32:
+        '''Add an IO port to the component.'''
+        if port.dir == 'in' and self._ins + 1 <= 32:
             self.in_ports.insert(0, port)
-            self.in_by_id[port.port_id] = port
+            self.in_by_id[port.id] = port
             self.ins += 1
-        elif port.port_dir == 'out' and self.outs + 1 <= 32:
+        elif port.dir == 'out' and self._outs + 1 <= 32:
             self.out_ports.insert(0, port)
-            self.out_by_id[port.port_id] = port
+            self.out_by_id[port.id] = port
             self.outs += 1
-        self.repos_resize(self.pos, self.get_size())
+        self.size = self.comp_size()
 
     def remove_port(self, port:IOPort) -> None:
+        '''Remove an IO port from the component.'''
         if port.port_dir == 'in':
             self.in_ports.remove(port)
             self.in_by_id.pop(port.port_id)
@@ -82,78 +130,91 @@ class Component(Panel):
             self.out_ports.remove(port)
             self.out_by_id.pop(port.port_id)
             self.outs -= 1
-        self.repos_resize(self.pos, self.get_size())
+        self.size = self.comp_size()
 
-    def get_configuration(self) -> Configuration:
-        return self.configuration
+    @property
+    def cycles(self) -> int:
+        '''Get or set the number of cycles between component executions'''
+        return self._cycles
 
-    def get_input_value(self, in_port_id:str) -> Signal:
-        return self.in_by_id[in_port_id].get_value()
+    @cycles.setter
+    def cycles(self, val:int) -> None:
+        self._cycles = max(1, min(Component.MAX_CYCLES, val))
 
-    def get_in_port(self, in_port_id:str) -> IOPort:
-        return self.in_by_id[in_port_id]
+    def set_width(self, width:int) -> None:
+        '''
+        Set the bit width of the component.
+        
+        Set a new bit width for the component. Not all components support this
+        configuration option, and implementation is left to the descendants of
+        Component.
 
-    def get_output_value(self, out_port_id:str) -> Signal:
-        return self.out_by_id[out_port_id].get_value()
+        Parameters:
+            width: the new bit width of the component
+        '''
+        pass
 
-    def get_out_port(self, out_port_id:str) -> IOPort:
-        return self.out_by_id[out_port_id]
+    def set_signed(self, signed:bool) -> None:
+        '''
+        Set the signage of the component.
+        
+        Set a new signage for the component. Not all components support this
+        configuration option, and implementation is left to the descendants of
+        Component.
 
-    def get_cycles(self) -> int:
-        return self.cycles
+        Parameters:
+            signed: the new signage of the component
+        '''
+        pass
 
-    def get_cycle_counter(self) -> int:
-        return self.cycle_counter
+    def at_pos(self, pos:Tuple[int, int]) -> Union[Component, IOPort]:
+        '''
+        Return the component or IO port at a given position.
 
-    def set_input_value(self, in_port_id:str, value:Signal) -> None:
-        self.in_by_id[in_port_id].set_value(value)
+        Return any IO port at the position. If none are, return the component
+        if it collides with the position. Otherwise, return None.
 
-    def set_output_value(self, out_port_id:str, value:Signal) -> None:
-        self.out_by_id[out_port_id].set_value(value)
-
-    def incr_cycles(self, dir:str) -> None:
-        if dir == '-':
-            new_c = max(1, self.cycles - 1)
-        else:
-            new_c = min(Component.MAX_CYCLES, self.cycles + 1)
-        self.cycles = new_c
-        self.cycle_counter = self.cycles
-
-    def collides(self, collision_pos:Tuple[int, int]) -> bool:
-        if self.bounding_box.collidepoint(collision_pos):
-            if collision_pos[0] < self.x:
+        Parameters:
+                pos: the position to check for a collision
+        '''
+        if self._bounding_box.collidepoint(pos):
+            if pos[0] < self._x:
                 for in_port in self.in_ports:
-                    if in_port.collides(collision_pos):
-                        return True
-            elif collision_pos[0] > self.x + self.w:
+                    if in_port.collides(pos):
+                        return in_port
+            elif pos[0] > self._x + self._w:
                 for out_port in self.out_ports:
-                    if out_port.collides(collision_pos):
-                        return True
+                    if out_port.collides(pos):
+                        return out_port
             else:
-                return True
-        return False
-
-    def get_clicked(self, pos:Tuple[int, int]) -> Union[Component, IOPort]:
-        if pos[0] < self.x + IOPort.SIZE[0] // 2:
-            for in_port in self.in_ports:
-                if in_port.collides(pos):
-                    return in_port
-        elif pos[0] > self.x + self.w - IOPort.SIZE[0] // 2:
-            for out_port in self.out_ports:
-                if out_port.collides(pos):
-                    return out_port
-        return self
+                return self
+        return None
 
     def execute(self) -> None:
+        '''Execute the component's functional logic.'''
         pass
 
     def tick(self) -> None:
+        '''
+        Decrement the cycle counter and execute the component's logic.
+
+        Decrement the counter that tracks the number of cycles before the
+        component executes. When the counter reaches zero, execute the
+        component and reset the cycle counter.
+        '''
         self.cycle_counter -= 1
         if self.cycle_counter == 0:
             self.execute()
             self.cycle_counter = self.cycles
 
     def render(self, buffer:Surface, theme:Theme) -> None:
+        '''
+        Extend Panel render method to show IO ports.
+        
+        Parameters:
+            buffer: the pygame surface to render on to
+            theme: the color and layout scheme to use for rendering
+        '''
         super().render(buffer, theme)
         for in_port in self.in_ports:
             in_port.render(buffer, theme)
