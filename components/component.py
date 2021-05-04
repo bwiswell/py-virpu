@@ -43,10 +43,10 @@ class Component(Panel):
 
         Parameters:
             comp_name: the name of the component
-            in_ports: ordered list of the component's input ports
-            out_ports: ordered list of the component's output ports
-            cycles: the number of cycles between component executions
-            config_options: the component's available configuration options
+            in_ports: ordered list of the component's input ports (default [])
+            out_ports: ordered list of the component's output ports (default [])
+            cycles: the number of cycles between component executions (default 1)
+            config_options: the component's available config options (default '')
         '''
         self._ins = len(in_ports)
         self._outs = len(out_ports)
