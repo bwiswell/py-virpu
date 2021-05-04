@@ -44,6 +44,10 @@ class IOPort(Panel):
         self._signed = signed
         self._value = Signal(0, width, signed)
 
+    def zero(self) -> None:
+        '''Zero out the value of the IO port.'''
+        self._value = Signal(width=self._width, signed=self._signed)
+
     @property
     def width(self) -> int:
         '''Get or set bit width of the IO port.'''
@@ -52,7 +56,7 @@ class IOPort(Panel):
     @width.setter
     def width(self, val:int) -> None:
         self._width = max(1, min(32, val))
-        self._value = Signal(self._value.value, self._width, self._signed)
+        self.zero()
 
     @property
     def signed(self) -> bool:
@@ -62,7 +66,7 @@ class IOPort(Panel):
     @signed.setter
     def signed(self, val:bool) -> None:
         self._signed = val
-        self._value = Signal(self._value.value, self._width, self._signed)
+        self.zero()
 
     @property
     def value(self) -> Signal:

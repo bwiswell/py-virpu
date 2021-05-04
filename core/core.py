@@ -103,6 +103,7 @@ class Core:
         if program is not None:
             translation = translator.translate(program)
             prog_mem.load_program(translation)
+            prog_mem.execute()
         prog_mem.set_center((400, 450))
         self.canvas.add_component(prog_mem)
 

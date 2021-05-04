@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from math import pow
-from typing import Tuple
+from typing import Tuple, Union
 
 from bitarray import bitarray
 from bitarray.util import ba2int, int2ba
@@ -63,6 +63,16 @@ class Signal:
         bits = int2ba(value, width, signed=signed)
         return Signal(bits)
 
+    @classmethod
+    def from_bool(cls, value:bool) -> Signal:
+        '''
+        Create a signal from an boolean value instead of a bitarray.
+        
+        Parameters:
+            value: the boolean value of the signal
+        '''
+        return Signal(int(value), 1, False)
+
     @property
     def bits(self) -> bitarray:
         '''Get the bits that make up the signal. Setting is disallowed.'''
@@ -123,12 +133,15 @@ class Signal:
         bits = self._bits & other.bits
         return Signal(bits, self._width, self._signed)
 
-    def __add__(self, other:Signal) -> Tuple[Signal, bool]:
+    def __add__(self, other:Union[Signal, int]) -> Tuple[Signal, bool]:
         '''
-        Return the result and overflow flag of adding two signals.
+        Return the result and overflow flag of adding two signals or a signal
+        and an int.
 
         This operation retains the signage of the signal that self refers to.
         '''
+        if isinstance(other, int):
+            other = Signal.from_value(other, self._width, self._signed)
         if self._width != other.width:
             raise ValueError('Signal bit-widths must match!')
         bits = bitarray(self._width)
@@ -151,8 +164,7 @@ class Signal:
             other: the signal to add to this signal
             carry_in: the carry in to the add operation (default False)
         '''
-        carry_sig = Signal.from_value(int(carry_in), self._width, self._signed)
-        carry_sum, carry_overflow = self + carry_sig
+        carry_sum, carry_overflow = self + int(carry_in)
         val_sum, val_overflow = carry_sum + other
         return val_sum, carry_overflow or val_overflow
 

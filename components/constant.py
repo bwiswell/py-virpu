@@ -1,75 +1,49 @@
-from typing import Tuple
-
 from .component import Component
 from .ioport import IOPort
-from ..panels.configuration import Configuration
-from ..signal.signal import Signal
-
 
 class Constant(Component):
-
-    NAME = 'Constant'
-    CYCLES = 1
+    '''
+    A class to represent a custom constant value that extends Component.
+    
+    This class is a functional logic component that coninuously outputs a
+    custom value.
+    '''
 
     def __init__(self):
-        data_port = IOPort('data', 'any', 'out')
-        config_labels = [
-                            'Value',
-                            'Bits', 
-                            'Signed' 
-                        ]
-        config_options = [
-                            ['-', '+'], 
-                            ['-', '+'], 
-                            [True, False]
-                        ]
-        config_getters = [
-                            self.get_value,
-                            self.get_data_width, 
-                            self.get_signed 
-                        ]
-        config_setters = [
-                            self.incr_value,
-                            self.incr_data_width, 
-                            self.set_signed
-                        ]
-        config = Configuration(
-                                config_labels, 
-                                config_options, 
-                                config_getters, 
-                                config_setters)
-        Component.__init__(self,
-                            Constant.NAME,
-                            [],
-                            [data_port],
-                            Constant.CYCLES,
-                            config
-                        )
-        self.value = Signal()
+        '''Initialize the Constant object and extend Component.'''
+        out_ports = [IOPort('data', 'any', 'out')]
+        Component.__init__(self, 
+                            comp_name='Constant', 
+                            out_ports=out_ports,
+                            config_options='vws'
+                            )
 
-    def get_value(self) -> Signal:
-        return self.value
+    def _get_width(self) -> int:
+        '''Get the bit width of the component.'''
+        return super()._get_width()
 
-    def get_data_width(self) -> int:
-        return self.value.data_width
+    def _set_width(self, val:int) -> None:
+        '''Set the bit width of the component.'''
+        super()._set_width(val)
+        self.out_by_id['data'].width = self._width
 
-    def get_signed(self) -> bool:
-        return self.value.get_signed()
+    width = property(_get_width, _set_width)
 
-    def incr_value(self, dir:str) -> None:
-        self.value.incr_val(dir)
+    def _get_signed(self) -> bool:
+        '''Get the signage of the component.'''
+        return super()._get_signed()
 
-    def incr_data_width(self, dir:str) -> None:
-        if dir == '-':
-            new_dw = max(1, self.get_data_width() - 1)
-        else:
-            new_dw = min(32, self.get_data_width() + 1)
-        self.out_by_id['data'].set_data_width(new_dw)
-        self.value = self.get_output_value('data')
+    def _set_signed(self, val:bool) -> None:
+        '''Set the signage of the component.'''
+        super()._set_signed(val)
+        self.out_by_id['data'].signed = self._signed
 
-    def set_signed(self, signed:bool) -> None:
-        self.out_by_id['data'].set_signed(signed)
-        self.value = self.get_output_value('data')
+    signed = property(_get_signed, _set_signed) 
 
     def execute(self) -> None:
-        self.set_output_value('data', self.value)
+        '''
+        Execute the constant's functional logic.
+
+        The constant continuously outputs a custom value.
+        '''
+        self.out_by_id['data'].value = self._value

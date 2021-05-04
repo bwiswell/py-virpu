@@ -15,18 +15,18 @@ class Aggregator(Component):
 
     def __init__(self):
         '''Initialize Aggregator object and extend Component'''
-        in_port = IOPort('bit-0', 'any', 'in', 1, False)
-        out_port = IOPort('data', 'any', 'out', 1, False)
+        in_ports = [IOPort('bit-0', 'any', 'in', 1, False)]
+        out_ports = [IOPort('data', 'any', 'out', 1, False)]
 
         Component.__init__(self,
                             comp_name='Aggregator',
-                            in_ports=[in_port],
-                            out_ports=[out_port],
+                            in_ports=in_ports,
+                            out_ports=out_ports,
                             config_options='ws'
                         )
 
-        self._width = 1
-        self._signed = False
+        self.width = 1
+        self.signed = False
 
     def _get_width(self) -> int:
         '''Get the bit width of the component.'''
@@ -37,12 +37,14 @@ class Aggregator(Component):
         old_w = self._width
         super()._set_width(val)
         self.out_by_id['data'].width = self._width
-        if old_w < self._width:
+        while old_w < self._width:
             port_id = f'bit-{old_w}'
             port = IOPort(port_id, 'any', 'in', 1, False)
             self.add_port(port)
-        elif old_w > self._width:
-            port_id = f'bit-{self._width}'
+            old_w += 1
+        while old_w > self._width:
+            old_w -= 1
+            port_id = f'bit-{old_w}'
             port = self.in_by_id[port_id]
             self.remove_port(port)
 
@@ -66,8 +68,8 @@ class Aggregator(Component):
         The aggregator combines n 1-bit unsigned inputs into one n-bit
         (un)signed output without performing any bit logic on the inputs.
         '''
-        out_bits = bitarray(self._width)
+        bits = bitarray(self._width)
         for i in range(self._width):
-            out_bits[i] = self.in_ports[i].value[0]
-        out_val = Signal.from_bits(out_bits, self._width, self._signed)
-        self.out_by_id['data'].value = out_val
+            bits[i] = self.in_ports[i].value[0]
+        value = Signal(bits, self._width, self._signed)
+        self.out_by_id['data'].value = value

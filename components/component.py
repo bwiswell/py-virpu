@@ -6,6 +6,7 @@ from pygame import Rect, Surface
 
 from .ioport import IOPort
 from ..panels.panel import Panel
+from ..signal.signal import Signal
 from ..ui.theme import Theme
 
 class Component(Panel):
@@ -22,6 +23,9 @@ class Component(Panel):
         in_by_id (Dict[str, IOPort]): dict of the component's input ports by port ID
         out_ports (List[IOPort]): ordered list of the component's output ports
         out_by_id (Dict[str, IOPort]): dict of the component's output ports by port ID
+        value (Signal): the value of the component
+        width (int): the bit-width of the component
+        signed (bool): the signage of the component
         cycles (int): the number of cycles between component executions
         counter (int): the number of cycles until the component's next execution
         config_options (str): the component's available configuration options
@@ -57,8 +61,9 @@ class Component(Panel):
         self.out_ports = out_ports
         self.out_by_id = {out_port.id: out_port for out_port in out_ports}
 
+        self._value = Signal()
         self._width = 32
-        self._signed = False
+        self._signed = True
         self._cycles = cycles
         self._counter = cycles
 
@@ -106,6 +111,17 @@ class Component(Panel):
 
     size = property(_get_size, _set_size)
 
+    def _get_value(self) -> Signal:
+        '''Get the value of the component.'''
+        return self._value
+
+    def _set_value(self, val:Signal) -> None:
+        '''Set the value of the component.'''
+        if val.width == self._width and val.signed == self._signed:
+            self._value = val
+
+    value = property(_get_value, _set_value)
+
     def _get_width(self) -> int:
         '''Get the bit width of the component.'''
         return self._width
@@ -113,6 +129,7 @@ class Component(Panel):
     def _set_width(self, val:int) -> None:
         '''Set the bit width of the component.'''
         self._width = max(1, min(32, val))
+        self._value = Signal(width=self._width, signed=self._signed)
 
     width = property(_get_width, _set_width)
 
@@ -123,6 +140,7 @@ class Component(Panel):
     def _set_signed(self, val:bool) -> None:
         '''Set the signage of the component.'''
         self._signed = val
+        self._value = Signal(width=self._width, signed=self._signed)
 
     signed = property(_get_signed, _set_signed)
 

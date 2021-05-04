@@ -31,6 +31,25 @@ class LogicGate(Component):
 
 
 
+class NotGate(LogicGate):
+    '''A class to represent a NOT gate that extends LogicGate.'''
+
+    def __init__(self):
+        '''Initialize NotGate object and extend LogicGate.'''
+        LogicGate.__init__(comp_name='NOT', n_inputs=1)
+
+    def execute(self) -> None:
+        '''
+        Execute the NOT gate's function logic.
+
+        The NOT gate sets its output to the inverse of its input.
+        '''
+        data = self.in_by_id['data-a'].value
+        value = Signal.from_bool(not data)
+        self.out_by_id['data'].value = value
+
+
+
 class AndGate(LogicGate):
     '''A class to represent an AND gate that extends LogicGate.'''
 
@@ -39,18 +58,16 @@ class AndGate(LogicGate):
         LogicGate.__init__(self, comp_name='AND')
 
     def execute(self) -> None:
-        
         '''
         Execute the AND gate's functional logic.
 
         The AND gate sets its output to 1 if and only if both of its inputs are
         1.
         '''
-        data_a = self.in_by_id['data-a']
-        data_b = self.in_by_id['data-b']
-        value = data_a.is_nonzero() and data_b.is_nonzero()
-        data = Signal(int(value), 1, False)
-        self.out_by_id['data'].value = data
+        data_a = self.in_by_id['data-a'].value
+        data_b = self.in_by_id['data-b'].value
+        value = Signal.from_bool(data_a and data_b)
+        self.out_by_id['data'].value = value
 
 
 
@@ -62,14 +79,12 @@ class OrGate(LogicGate):
         LogicGate.__init__(self, comp_name='OR')
 
     def execute(self) -> None:
-        
         '''
         Execute the OR gate's functional logic.
 
         The OR gate sets its output to 1 if either of its inputs are 1.
         '''
-        data_a = self.in_by_id['data-a']
-        data_b = self.in_by_id['data-b']
-        value = data_a.is_nonzero() or data_b.is_nonzero()
-        data = Signal(int(value), 1, False)
-        self.out_by_id['data'].value = data
+        data_a = self.in_by_id['data-a'].value
+        data_b = self.in_by_id['data-b'].value
+        value = Signal.from_bool(data_a or data_b)
+        self.out_by_id['data'].value = value

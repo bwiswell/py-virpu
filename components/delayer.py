@@ -1,74 +1,56 @@
-
-
-from typing import IO
 from .component import Component
 from .ioport import IOPort
-from ..panels.configuration import Configuration
 from ..signal.signal import Signal
 
 class Delayer(Component):
+    '''
+    A class to represent a signal delayer that extends Component.
 
-    NAME = 'Delayer'
-    DEF_CYCLES = 4
+    This class is a functional component that delays a signal for a custom
+    number of ticks.
+    '''
 
     def __init__(self):
-        in_port = IOPort('data', 'any', 'in')
-        out_port = IOPort('data', 'any', 'out')
-        
-        config_labels = [
-                            'Delay', 
-                            'Bits', 
-                            'Signed'
-                        ]
-        config_options = [
-                            ['-', '+'], 
-                            ['-', '+'], 
-                            [True, False]
-                        ]
-        config_getters = [
-                            self.get_cycles, 
-                            self.get_data_width, 
-                            self.get_signed
-                        ]
-        config_setters = [
-                            self.incr_cycles,
-                            self.incr_data_width,
-                            self.set_signed
-                        ]
-        config = Configuration(
-                                config_labels,
-                                config_options,
-                                config_getters,
-                                config_setters
-                            )
+        '''Initialize the Delayer object and extend Component.'''
+        in_ports = [IOPort('data', 'any', 'in')]
+        out_ports = [IOPort('data', 'any', 'out')]
 
         Component.__init__(self,
-                            Delayer.NAME,
-                            [in_port],
-                            [out_port],
-                            Delayer.DEF_CYCLES,
-                            config
+                            comp_name='Delayer',
+                            in_ports=in_ports,
+                            out_ports=out_ports,
+                            cycles=4,
+                            config_options='wsct'
                         )
 
-    
-    def get_data_width(self) -> int:
-        return self.in_ports[0].data_width
+    def _get_width(self) -> int:
+        '''Get the bit width of the component.'''
+        return super()._get_width()
 
-    def get_signed(self) -> bool:
-        return self.in_ports[0].get_signed()
+    def _set_width(self, val:int) -> None:
+        '''Set the bit width of the component.'''
+        super()._set_width(val)
+        self.in_by_id['data'].width = self._width
+        self.out_by_id['data'].width = self._width
 
-    def incr_data_width(self, dir:str) -> None:
-        if dir == '-':
-            new_dw = max(1, self.get_data_width() - 1)
-        else:
-            new_dw = min(32, self.get_data_width() + 1)
-        self.in_by_id['data'].set_data_width(new_dw)
-        self.out_by_id['data'].set_data_width(new_dw)
+    width = property(_get_width, _set_width)
 
-    def set_signed(self, signed:bool) -> None:
-        self.in_by_id['data'].set_signed(signed)
-        self.out_by_id['data'].set_signed(signed)
+    def _get_signed(self) -> bool:
+        '''Get the signage of the component.'''
+        return super()._get_signed()
+
+    def _set_signed(self, val:bool) -> None:
+        '''Set the signage of the component.'''
+        super()._set_signed(val)
+        self.in_by_id['data'].signed = self._signed
+        self.out_by_id['data'].signed = self._signed
+
+    signed = property(_get_signed, _set_signed)
 
     def execute(self) -> None:
-        data = self.get_input_value('data')
-        self.set_output_value('data', data)
+        '''
+        Execute the delayer's functional logic.
+
+        The delayer delays a signal for a custom number of ticks.
+        '''
+        self.out_by_id['data'].value = self.in_by_id['data'].value
