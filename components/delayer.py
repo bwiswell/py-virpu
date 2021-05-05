@@ -47,7 +47,7 @@ class Delayer(Component):
 
     signed = property(_get_signed, _set_signed)
 
-    def execute(self) -> None:
+    def _execute(self) -> None:
         '''
         Execute the delayer's functional logic.
 

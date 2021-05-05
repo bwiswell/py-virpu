@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import Tuple
 
 from pygame import draw, Rect, Surface
 from pygame.event import Event
@@ -6,53 +6,82 @@ from pygame.event import Event
 from ..ui.theme import Theme
 
 class Panel:
+    '''
+    A class to represent an interactable UI panel.
+
+    Attributes:
+        x (int): The x-coordinate of the panel's top-left corner
+        y (int): The y-coordinate of the panel's top-left corner
+        pos (Tuple[int, int]): The position of the panel's top-left corner
+        w (int): The width of the panel
+        h (int): The height of the panel
+        size (Tuple[int, int]): The size of the panel
+        rect (Rect): The rect that describes the area occupied by the panel
+        label (object): The object that labels the panel
+        hovered (bool): A flag indicating if the mouse is over the panel
+    '''
     def __init__(self, 
-                    label_objs:List[object], 
+                    label:object, 
                     pos:Tuple[int, int]=(0,0), 
                     size:Tuple[int, int]=(0,0)
                 ):
-        self.x, self.y = pos
-        self.pos = pos
-        self.w, self.h = size
-        self.size = size
-        self.rect = Rect(self.pos, self.size)
-        self.label_objs = label_objs
-        self.curr_selection = 0
-        self.hovered = False
+        '''
+        Initialize the Panel object.
+        
+        Attributes:
+            label: The object that labels the panel
+            pos: The position of the panel's top-left corner (default (0, 0))
+            size: The size of the panel (default (0, 0))
+        '''
+        self._x, self._y = pos
+        self._pos = pos
+        self._w, self._h = size
+        self._size = size
+        self._rect = Rect(pos, size)
+        self._label = label
+        self._hovered = False
 
-    def repos(self, new_pos:Tuple[int, int]) -> None:
-        self.x, self.y = new_pos
-        self.pos = new_pos
-        self.rect = Rect(self.pos, self.size)
+    def _get_pos(self) -> Tuple[int, int]:
+        '''Get the position of the panel's top-left corner.'''
+        return self._pos
 
-    def set_center(self, new_center:Tuple[int, int]) -> None:
-        new_x = new_center[0] - self.w // 2
-        new_y = new_center[1] - self.h // 2
-        self.repos((new_x, new_y))
+    def _set_pos(self, val:Tuple[int, int]) -> None:
+        '''Set the position of the panel's top-left corner.'''
+        self._x, self._y = val
+        self._pos = val
+        self._rect = Rect(val, self._size)
 
-    def repos_resize(self, 
-                        new_pos:Tuple[int, int], 
-                        new_size:Tuple[int, int]
-                    ) -> None:
-        self.w, self.h = new_size
-        self.size = new_size
-        self.repos(new_pos)
+    pos = property(_get_pos, _set_pos)
 
-    def curr_label(self) -> object:
-        return self.label_objs[self.curr_selection]
+    def center_on(self, center:Tuple[int, int]) -> None:
+        '''Center the panel on a position.'''
+        x = center[0] - self._w // 2
+        y = center[1] - self._h // 2
+        self.pos = x, y
 
-    def cycle_selection(self) -> None:
-        self.curr_selection = (self.curr_selection + 1) % len(self.label_objs)
+    def _get_size(self) -> Tuple[int, int]:
+        '''Get the panel's size.'''
+        return self._size
+
+    def _set_size(self, val:Tuple[int, int]):
+        '''Set the panel's size.'''
+        self._w, self._h = val
+        self._size = val
+        self._rect = Rect(self._pos, val)
+
+    size = property(_get_size, _set_size)
 
     def collides(self, collision_pos:Tuple[int, int]) -> bool:
-        return self.rect.collidepoint(collision_pos)
+        '''Detect if a position collides with the panel.'''
+        return self._rect.collidepoint(collision_pos)
         
     def handle_click(self, event:Event) -> None:
-        if event.button == 3:
-            self.cycle_selection()
+        '''Handle a click interaction with the panel.'''
+        pass
 
-    def handle_hover(self) -> None:
-        self.hovered = True
+    def handle_hover(self, mouse_pos:Tuple[int, int]) -> None:
+        '''Handle a hover interaction with the panel.'''
+        self._hovered = True
 
     def render(self, 
                 buffer:Surface, 
@@ -60,27 +89,24 @@ class Panel:
                 active:bool=False,
                 render_label:bool=True
             ) -> None:
+        '''
+        Render panel on to the buffer using the theme.
+        
+        Parameters:
+            buffer: the pygame surface to render on to
+            theme: the color and layout scheme to use for rendering
+            active: boolean indicating if the active color should be used
+            render_label: boolean indicating if the label should be rendered
+        '''
         if active:
-            bg_color = theme.get_active_color()
+            bg_col = theme.act_col
         else:
-            bg_color = theme.get_bg_color()
-        border_radius = theme.get_border_radius()
-        draw.rect(
-            buffer,
-            bg_color,
-            self.rect,
-            border_radius=border_radius
-        )
-        draw.rect(
-            buffer, 
-            theme.get_border_color(), 
-            self.rect, 
-            theme.get_border_width(),
-            border_radius
-        )
+            bg_col = theme.bg_col
+        draw.rect(buffer, bg_col, self._rect, border_radius=theme.bord_r)
+        draw.rect(buffer, theme.bord_col, self._rect, theme.bord_w, theme.bord_r)
         if render_label:
-            label = theme.large_text(self.curr_label())
-            label_x = self.rect.centerx - label.get_width() // 2
-            label_y = self.rect.centery - label.get_height() // 2
+            label = theme.large_text(self._label)
+            label_x = self._rect.centerx - label.get_width() // 2
+            label_y = self._rect.centery - label.get_height() // 2
             buffer.blit(label, (label_x, label_y))
-        self.hovered = False
+        self._hovered = False

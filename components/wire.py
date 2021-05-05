@@ -54,7 +54,7 @@ class Wire:
         if self.wire_out is not None:
             self.wire_out.value = self.wire_in.value
 
-    def render_segment(self, 
+    def _render_segment(self, 
                         buffer:Surface, 
                         theme:Theme,
                         pos_a:Tuple[int, int],
@@ -77,7 +77,7 @@ class Wire:
         b_x = pos_b[0]
         b_y = pos_b[1] - y_off
         for i in range(self.wire_in.width):
-            draw.aaline(buffer, theme.wire_color, (a_x, a_y), (b_x, b_y))
+            draw.aaline(buffer, theme.wire_col, (a_x, a_y), (b_x, b_y))
             a_y += 1
             b_y += 1
 
@@ -94,11 +94,11 @@ class Wire:
             theme: the color and layout scheme to use for rendering
             mouse_pos: position for drawing a wire to the mouse (default None)
         '''
-        route = [(self.wire_in.rect.right, self.wire_in.rect.centery)]
+        route = [(self.wire_in._rect.right, self.wire_in._rect.centery)]
         route += self._route
         if self.wire_out is not None:
-            route += [(self.wire_out.rect.left, self.wire_out.rect.centery)]
+            route += [(self.wire_out._rect.left, self.wire_out._rect.centery)]
         elif mouse_pos is not None:
             route += [mouse_pos]
         for i in range(len(route) - 1):
-            self.render_segment(buffer, theme, route[i], route[i + 1])
+            self._render_segment(buffer, theme, route[i], route[i + 1])

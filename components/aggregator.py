@@ -25,7 +25,7 @@ class Aggregator(Component):
                             config_options='ws'
                         )
 
-        self.width = 1
+        self._width = 1
         self.signed = False
 
     def _get_width(self) -> int:
@@ -40,13 +40,13 @@ class Aggregator(Component):
         while old_w < self._width:
             port_id = f'bit-{old_w}'
             port = IOPort(port_id, 'any', 'in', 1, False)
-            self.add_port(port)
+            self._add_port(port)
             old_w += 1
         while old_w > self._width:
             old_w -= 1
             port_id = f'bit-{old_w}'
             port = self.in_by_id[port_id]
-            self.remove_port(port)
+            self._remove_port(port)
 
     width = property(_get_width, _set_width)
 
@@ -61,7 +61,7 @@ class Aggregator(Component):
 
     signed = property(_get_signed, _set_signed)
 
-    def execute(self) -> None:
+    def _execute(self) -> None:
         '''
         Execute the aggregator's functional logic.
 

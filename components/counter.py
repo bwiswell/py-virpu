@@ -45,7 +45,7 @@ class Counter(Component):
 
     signed = property(_get_signed, _set_signed)
 
-    def execute(self) -> None:
+    def _execute(self) -> None:
         '''
         Execute the counter's functional logic.
 

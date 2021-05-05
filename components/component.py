@@ -54,7 +54,7 @@ class Component(Panel):
         '''
         self._ins = len(in_ports)
         self._outs = len(out_ports)
-        Panel.__init__(self, [comp_name], (0, 0), self.get_size())
+        Panel.__init__(self, comp_name, (0, 0), self._comp_size())
 
         self.in_ports = in_ports
         self.in_by_id = {in_port.id: in_port for in_port in in_ports}
@@ -83,7 +83,7 @@ class Component(Panel):
             in_port.pos = in_x, in_y
             in_y += in_y_off
         out_x = self._x + self._w - IOPort.SIZE[0] // 2
-        out_y_off = 0 if self.outs == 0 else self._h // self.outs
+        out_y_off = 0 if self._outs == 0 else self._h // self._outs
         out_y = self._y + out_y_off // 2 - IOPort.SIZE[1] // 2
         for out_port in self.out_ports:
             out_port.pos = out_x, out_y
@@ -162,11 +162,15 @@ class Component(Panel):
     def counter(self, val:int) -> None:
         self._counter = max(1, min(self._cycles, val))
 
-    def comp_size(self) -> Tuple[int, int]:
+    def _comp_size(self) -> Tuple[int, int]:
         '''Get the best size of the component for the number of IO ports.'''
         return Component.WIDTH, ceil(max((1, self._ins, self._outs)) / 2.0) * 75
 
-    def add_port(self, port:IOPort) -> None:
+    def collides(self, collision_pos:Tuple[int, int]) -> bool:
+        '''Extend Panel to detect IO port collision.'''
+        return self._bounding_box.collidepoint(collision_pos)
+
+    def _add_port(self, port:IOPort) -> None:
         '''Add an IO port to the component.'''
         if port.dir == 'in' and self._ins + 1 <= 32:
             self.in_ports.insert(0, port)
@@ -176,9 +180,9 @@ class Component(Panel):
             self.out_ports.insert(0, port)
             self.out_by_id[port.id] = port
             self.outs += 1
-        self.size = self.comp_size()
+        self.size = self._comp_size()
 
-    def remove_port(self, port:IOPort) -> None:
+    def _remove_port(self, port:IOPort) -> None:
         '''Remove an IO port from the component.'''
         if port.dir == 'in':
             self.in_ports.remove(port)
@@ -188,7 +192,7 @@ class Component(Panel):
             self.out_ports.remove(port)
             self.out_by_id.pop(port.port_id)
             self.outs -= 1
-        self.size = self.comp_size()
+        self.size = self._comp_size()
 
     def at_pos(self, pos:Tuple[int, int]) -> Union[Component, IOPort]:
         '''
@@ -201,19 +205,16 @@ class Component(Panel):
                 pos: the position to check for a collision
         '''
         if self._bounding_box.collidepoint(pos):
-            if pos[0] < self._x:
-                for in_port in self.in_ports:
-                    if in_port.collides(pos):
-                        return in_port
-            elif pos[0] > self._x + self._w:
-                for out_port in self.out_ports:
-                    if out_port.collides(pos):
-                        return out_port
-            else:
-                return self
+            for in_port in self.in_ports:
+                if in_port.collides(pos):
+                    return in_port
+            for out_port in self.out_ports:
+                if out_port.collides(pos):
+                    return out_port
+            return self
         return None
 
-    def execute(self) -> None:
+    def _execute(self) -> None:
         '''Execute the component's functional logic.'''
         pass
 
@@ -227,7 +228,7 @@ class Component(Panel):
         '''
         self.cycle_counter -= 1
         if self.cycle_counter == 0:
-            self.execute()
+            self._execute()
             self.cycle_counter = self.cycles
 
     def render(self, buffer:Surface, theme:Theme) -> None:

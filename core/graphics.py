@@ -1,45 +1,62 @@
-import pygame as pg
+from typing import Tuple
+
+from pygame import display, Surface, FULLSCREEN, SRCALPHA
 
 from .coredata import CoreData
 
 class Graphics:
+    '''
+    A class to store and manage rendering buffers.
+
+    Attributes:
+        core_data (CoreData): The current core state object
+        screen (Surface): The output display surface
+        canvas_buffer (Surface): The canvas' render buffer
+        ui_buffer (Surface): The UI's render buffer
+        overlay_buffer (Surface): The overlay's render buffer
+    '''
     def __init__(self, core_data:CoreData):
-        self.core_data = core_data
+        '''
+        Initialize the Graphics object.
 
-        self.screen = pg.display.set_mode(flags=pg.FULLSCREEN)
-        screen_w, screen_h = screen_size = self.screen.get_size()
-        self.core_data.set_data('fullscreen', True)
-        self.core_data.set_data('screen-w', screen_w)
-        self.core_data.set_data('screen-h', screen_h)
-        self.core_data.set_data('screen-size', screen_size)
+        Parameters:
+            core_data: The current core state object
+        '''
+        self._core_data = core_data
 
-        self.canvas_buffer = pg.Surface(screen_size)
-        self.ui_buffer = pg.Surface(screen_size, pg.SRCALPHA)
-        self.overlay_buffer = pg.Surface(screen_size, pg.SRCALPHA)
+        self._screen = display.set_mode(flags=FULLSCREEN)
+        self._core_data.screen_size = self._screen.get_size()
 
-    def get_canvas_buffer(self) -> pg.Surface:
-        return self.canvas_buffer
+        self._canvas_buffer = Surface(self.size)
+        self._ui_buffer = Surface(self.size, SRCALPHA)
+        self._overlay_buffer = Surface(self.size, SRCALPHA)
 
-    def get_ui_buffer(self) -> pg.Surface:
-        return self.ui_buffer
+    @property
+    def size(self) -> Tuple[int, int]:
+        '''Get the graphics size.'''
+        return self._core_data.screen_size
 
-    def get_overlay_buffer(self) -> pg.Surface:
-        return self.overlay_buffer
+    @property
+    def canvas_buffer(self) -> Surface:
+        '''Get the canvas graphics buffer.'''
+        self._canvas_buffer.fill((0, 0, 0))
+        return self._canvas_buffer
 
-    def clear_canvas_buffer(self) -> pg.Surface:
-        self.canvas_buffer.fill((0, 0, 0))
-        return self.canvas_buffer
+    @property
+    def ui_buffer(self) -> Surface:
+        '''Get the UI graphics buffer.'''
+        self._ui_buffer.fill(SRCALPHA)
+        return self._ui_buffer
 
-    def clear_ui_buffer(self) -> pg.Surface:
-        self.ui_buffer.fill(pg.SRCALPHA)
-        return self.ui_buffer
-
-    def clear_overlay_buffer(self) -> pg.Surface:
-        self.overlay_buffer.fill(pg.SRCALPHA)
-        return self.overlay_buffer
+    @property
+    def overlay_buffer(self) -> Surface:
+        '''Get the overlay graphics buffer.'''
+        self._overlay_buffer.fill(SRCALPHA)
+        return self._overlay_buffer
 
     def render(self) -> None:
-        self.screen.blit(self.canvas_buffer, (0, 0))
-        self.screen.blit(self.ui_buffer, (0, 0))
-        self.screen.blit(self.overlay_buffer, (0, 0))
-        pg.display.update()
+        '''Render the canvas, UI, and overlay buffers to the display.'''
+        self._screen.blit(self._canvas_buffer, (0, 0))
+        self._screen.blit(self._ui_buffer, (0, 0))
+        self._screen.blit(self._overlay_buffer, (0, 0))
+        display.update()

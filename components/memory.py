@@ -45,8 +45,9 @@ class Memory(Component):
         mem_ext = [Signal.from_value(i, signed=False) for i in range(rem_mem)]
         mem.extend(mem_ext)
         self._data = mem
+        self._execute()
         
-    def execute(self) -> None:
+    def _execute(self) -> None:
         '''
         Execute the memory's functional logic.
 

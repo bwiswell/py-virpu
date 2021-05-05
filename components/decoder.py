@@ -35,7 +35,7 @@ class Decoder(Component):
                             out_ports=out_ports
                         )
         
-    def execute(self) -> None:
+    def _execute(self) -> None:
         '''
         Execute the decoder's functional logic.
 

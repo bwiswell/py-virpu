@@ -38,7 +38,7 @@ class NotGate(LogicGate):
         '''Initialize NotGate object and extend LogicGate.'''
         LogicGate.__init__(comp_name='NOT', n_inputs=1)
 
-    def execute(self) -> None:
+    def _execute(self) -> None:
         '''
         Execute the NOT gate's function logic.
 
@@ -57,7 +57,7 @@ class AndGate(LogicGate):
         '''Initialize AndGate object and extend LogicGate.'''
         LogicGate.__init__(self, comp_name='AND')
 
-    def execute(self) -> None:
+    def _execute(self) -> None:
         '''
         Execute the AND gate's functional logic.
 
@@ -78,7 +78,7 @@ class OrGate(LogicGate):
         '''Initialize OrGate object and extend LogicGate.'''
         LogicGate.__init__(self, comp_name='OR')
 
-    def execute(self) -> None:
+    def _execute(self) -> None:
         '''
         Execute the OR gate's functional logic.
 

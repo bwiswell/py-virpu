@@ -3,36 +3,47 @@ from typing import Union
 from ..ui.theme import Theme
 
 class CoreData:
+    '''
+    A class to store session information.
+    
+    Attributes:
+        running (bool): Main flag for continuing/exiting program
+        ticks (int): The number of clock cycles so far
+        screen_size (Tuple[int, int]): The size of the display screen
+        placing (Component): The component currently being placed
+        wire (Wire): The wire currently being placed
+        canvas_theme (Theme): The theme to use when rendering the canvas
+        ui_theme (Theme): The theme to use when rendering the UI
+        overlay_theme (Theme): The theme to use when rendering the overlay
+    '''
     def __init__(self):
-        self.data = {
-            'ticks': 0,
-            'running': True,
-            'placing': None,
-            'comp-config': None,
-            'canvas-theme': Theme(
-                bg_color=(0, 0, 0),
-                active_color=(0, 0, 0),
-                border_color=(255, 255, 255),
-                border_width=2,
-                text_color=(255, 255, 255)
-            ),
-            'ui-theme': Theme(
-                bg_color=(255, 255, 255),
-                active_color=(191, 191, 191),
-                border_color=(0, 0, 0),
-                border_width = 2,
-            ),
-            'overlay-theme': Theme(
-                bg_color=(255, 255, 255),
-                active_color=(191, 191, 191),
-                border_color=(127, 31, 31),
-                border_width = 2,
-            ),
-            'wire': None
-        }
+        '''Initialize CoreData object.'''
+        self.running = True
+        self.ticks = 0
 
-    def get_data(self, data_id:str) -> Union[object, None]:
-        return self.data[data_id]
+        self.screen_size = (0, 0)
 
-    def set_data(self, data_id:str, data:object) -> None:
-        self.data[data_id] = data
+        self.placing = None
+        self.wire = None
+
+        self.canvas_theme = Theme(
+                                    bg_col=(0, 0, 0),
+                                    act_col=(0, 0, 0),
+                                    wire_col=(255, 255, 255),
+                                    txt_col=(255, 255, 255),
+                                    bord_col=(255, 255, 255)
+                                )
+        self.ui_theme = Theme(
+                                bg_col=(255, 255, 255),
+                                act_col=(191, 191, 191),
+                                wire_col=(95, 31, 31),
+                                txt_col=(0, 0, 0),
+                                bord_col=(0, 0, 0)
+                            )
+        self.overlay_theme = Theme(
+                                    bg_col=(255, 255, 255),
+                                    act_col=(191, 191, 191),
+                                    wire_col=(95, 31, 31),
+                                    txt_col=(0, 0, 0),
+                                    bord_col=(0, 0, 0)
+                                )

@@ -28,11 +28,10 @@ class Signal:
             width: the bit-width of the signal (default 32)
             signed: the signage of the signal (default True)
         '''
+        self._bits = bits
         if bits is None:
             self._bits = bitarray(width)
             self._bits.setall(0)
-        else:
-            self._bits = bits
         self._width = width
         self._signed = signed
         self._value = ba2int(self._bits, signed=signed)

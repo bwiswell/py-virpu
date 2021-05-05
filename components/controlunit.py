@@ -47,7 +47,7 @@ class ControlUnit(Component):
         for bitarray in raw_bitarrays:
             self._data.append(Signal(bitarray, 11, False))
         
-    def execute(self) -> None:
+    def _execute(self) -> None:
         '''
         Execute the control unit's function logic.
 

@@ -4,78 +4,72 @@ from pygame import Surface
 from pygame.font import Font, SysFont
 
 class Theme:
+    '''
+    A class to track custom color and layout schemes to use for rendering.
+
+    Parameters:
+        bg_col (Tuple[int, int, int]): The background color
+        act_col (Tuple[int, int, int]): The color of 'active' objects
+        txt_col (Tuple[int, int, int]): The text color
+        bord_col (Tuple[int, int, int]): The border color
+        bord_w (int): The border width
+        bord_r (int): The border radius
+        sm_font (Font): The small-sized font
+        md_font (Font): The medium-sized font
+        lg_font (Font): The large-sized font
+    '''
     def __init__(self,
-                    bg_color:Tuple[int, int, int],
-                    active_color:Tuple[int, int, int],
-                    border_color:Tuple[int, int, int],
-                    border_width:Tuple[int, int, int],
-                    border_radius:int=10,
+                    bg_col:Tuple[int, int, int],
+                    act_col:Tuple[int, int, int],
+                    wire_col:Tuple[int, int, int],
+                    txt_col:Tuple[int, int, int],
+                    bord_col:Tuple[int, int, int],
+                    bord_w:int=2,
+                    bord_r:int=10,
                     font_name:str=None,
-                    small_font_size:int=12,
-                    medium_font_size:int=18,
-                    large_font_size:int=24,
-                    text_color:Tuple[int, int, int]=(0, 0, 0)
+                    sm_font_size:int=12,
+                    md_font_size:int=18,
+                    lg_font_size:int=24
                 ):
-        self.bg_color = bg_color
-        self.active_color = active_color
-        self.border_color = border_color
-        self.border_width = border_width
-        self.border_radius = border_radius
-        self.small_font = SysFont(font_name, small_font_size)
-        self.small_bold = SysFont(font_name, small_font_size, True)
-        self.medium_font = SysFont(font_name, medium_font_size)
-        self.medium_bold = SysFont(font_name, medium_font_size, True)
-        self.large_font = SysFont(font_name, large_font_size)
-        self.large_bold = SysFont(font_name, large_font_size, True)
-        self.text_color = text_color
+        '''
+        Initialize the Theme object and its fonts.
 
-    def get_bg_color(self) -> Tuple[int, int, int]:
-        return self.bg_color
+        Parameters:
+            bg_col: The background color
+            act_col: The color of 'active' objects
+            wire_col: The wire color
+            txt_col: The text color
+            bord_col: The border color
+            bord_w: The border width (default 10)
+            bord_r: The border radius (default 10)
+            font_name: The name of the font to use (default None)
+            sm_font_size: The small font size (default 12)
+            md_font_size: The medium font size (default 18)
+            lg_font_size: The large font size (default 24)
+        '''
+        self.bg_col = bg_col
+        self.act_col = act_col
+        self.wire_col = wire_col
+        self.txt_col = txt_col
+        self.bord_col = bord_col
+        self.bord_w = bord_w
+        self.bord_r = bord_r
+        self._sm_font = SysFont(font_name, sm_font_size)
+        self._md_font = SysFont(font_name, md_font_size)
+        self._lg_font = SysFont(font_name, lg_font_size)
 
-    def get_active_color(self) -> Tuple[int, int, int]:
-        return self.active_color
+    def _render_text(self, text_obj:object, font:Font) -> Surface:
+        '''Render a text version of text_obj using the given font.'''
+        return font.render(str(text_obj), True, self.txt_col)
 
-    def get_border_color(self) -> Tuple[int, int, int]:
-        return self.border_color
+    def small_text(self, text_obj:object) -> Surface:
+        '''Render a text version of text_obj using the small font.'''
+        return self._render_text(text_obj, self._sm_font)
 
-    def get_border_width(self) -> int:
-        return self.border_width
-
-    def get_border_radius(self) -> int:
-        return self.border_radius
-
-    def get_text_color(self) -> Tuple[int, int, int]:
-        return self.text_color
-
-    def set_bg_color(self, bg_color:Tuple[int, int, int]) -> None:
-        self.bg_color = bg_color
-
-    def set_active_color(self, active_color:Tuple[int, int, int]) -> None:
-        self.active_color = active_color
-
-    def set_border_color(self, border_color:Tuple[int, int, int]) -> None:
-        self.border_color = border_color
-
-    def set_border_width(self, border_width:int) -> None:
-        self.border_width = border_width
-
-    def set_border_radius(self, border_radius:int) -> None:
-        self.border_radius = border_radius
-
-    def set_text_color(self, text_color:Tuple[int, int, int]) -> None:
-        self.text_color = text_color
-
-    def render_text(self, text_obj:object, font:Font) -> Surface:
-        return font.render(str(text_obj), True, self.text_color)
-
-    def small_text(self, text_obj:object, bold:bool=False) -> Surface:
-        font = self.small_bold if bold else self.small_font
-        return self.render_text(text_obj, font)
-
-    def medium_text(self, text_obj:object, bold:bool=False) -> Surface:
-        font = self.medium_bold if bold else self.medium_font
-        return self.render_text(text_obj, font)
+    def medium_text(self, text_obj:object) -> Surface:
+        '''Render a text version of text_obj using the medium font.'''
+        return self._render_text(text_obj, self._md_font)
         
-    def large_text(self, text_obj:object, bold:bool=False) -> Surface:
-        font = self.large_bold if bold else self.large_font
-        return self.render_text(text_obj, font)
+    def large_text(self, text_obj:object) -> Surface:
+        '''Render a text version of text_obj using the large font.'''
+        return self._render_text(text_obj, self._lg_font)

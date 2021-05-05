@@ -42,9 +42,9 @@ class Register(Component):
                             config_options='t'
                         )
 
-        self._data = [Signal(0) for _ in range(Register.REGISTERS)]
+        self._data = [Signal() for _ in range(Register.REGISTERS)]
 
-    def execute(self) -> None:
+    def _execute(self) -> None:
         '''
         Execute the memory's functional logic.
 

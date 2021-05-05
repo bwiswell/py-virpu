@@ -42,7 +42,7 @@ class IOPort(Panel):
         self.dir = dir
         self._width = width
         self._signed = signed
-        self._value = Signal(0, width, signed)
+        self._value = Signal(width=width, signed=signed)
 
     def zero(self) -> None:
         '''Zero out the value of the IO port.'''
@@ -86,16 +86,16 @@ class IOPort(Panel):
             buffer: the pygame surface to render on to
             theme: the color and layout scheme to use for rendering
         '''
-        if self.hovered:
+        if self._hovered:
             content = theme.medium_text(self._value)
         else:
-            content = theme.medium_text(self._id)
+            content = theme.medium_text(self.id)
         super().render(
             buffer,
             theme,
-            active=self.hovered,
+            active=self._hovered,
             render_label=False
         )
-        content_x = self._rect.center_x - content.get_width() // 2
-        content_y = self._rect.center_y - content.get_height() // 2
+        content_x = self._rect.centerx - content.get_width() // 2
+        content_y = self._rect.centery - content.get_height() // 2
         buffer.blit(content, (content_x, content_y))

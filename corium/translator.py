@@ -11,15 +11,8 @@ MAX_IMM = int(pow(2, 8)) - 1
 MIN_REG = 0
 MAX_REG = 15
 
-class ArgMismatchException(Exception):
-    def __init__(self, message):
-        Exception.__init__(self, message)
-
-class ArgValueException(Exception):
-    def __init__(self, message):
-        Exception.__init__(self, message)
-
 def translate_line(assembly_line:str) -> bitarray:
+    '''Translate a line of assembly code to bit instructions.'''
     symbols = assembly_line.split(' ')
     a_code = symbols[0]
     exp_args = corium.get_arg_types(a_code)
@@ -28,9 +21,9 @@ def translate_line(assembly_line:str) -> bitarray:
     bit_count = 0
 
     if len(exp_args) < len(act_args):
-        raise ArgMismatchException(f'Too many args for command {a_code}!')
+        raise SyntaxError(f'Too many args for command {a_code}!')
     elif len(exp_args) > len(act_args):
-        raise ArgMismatchException(f'Not enough args for command {a_code}!')
+        raise SyntaxError(f'Not enough args for command {a_code}!')
     else:
         bits = corium.get_m_code(a_code)
         bit_count += 8
@@ -39,17 +32,17 @@ def translate_line(assembly_line:str) -> bitarray:
         arg = int(act_args[i])
         arg_type = exp_args[i]
         if arg_type == 'imm' and arg < MIN_IMM:
-            raise ArgValueException(f'Min value for an immediate is {MIN_IMM}!')
+            raise ValueError(f'Min value for an immediate is {MIN_IMM}!')
         elif arg_type == 'imm' and arg > MAX_IMM:
-            raise ArgValueException(f'Max value for an immediate is {MAX_IMM}!')
+            raise ValueError(f'Max value for an immediate is {MAX_IMM}!')
         elif arg_type == 'imm':
             imm = int2ba(arg, 16, signed=True)
             bits += imm
             bit_count += 16
         elif arg < MIN_REG:
-            raise ArgValueException(f'Min value for a register is {MIN_REG}!')
+            raise ValueError(f'Min value for a register is {MIN_REG}!')
         elif arg > MAX_REG:
-            raise ArgValueException(f'Max value for a register is {MAX_REG}!')
+            raise ValueError(f'Max value for a register is {MAX_REG}!')
         else:
             reg = int2ba(arg, 4, signed=False)
             bits += reg
@@ -62,4 +55,5 @@ def translate_line(assembly_line:str) -> bitarray:
     return bits
 
 def translate(assembly_lines:List[str]) -> List[bitarray]:
+    '''Translate a list of assembly code lines to a list of bit instructions.'''
     return [translate_line(line) for line in assembly_lines]
