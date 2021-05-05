@@ -95,7 +95,6 @@ def load_default_setup(canvas:Canvas, program:List[str]) -> None:
     if program is not None:
         translation = translator.translate(program)
         prog_mem.load_program(translation)
-        prog_mem.execute()
     prog_mem.center_on((400, 450))
     canvas.add_component(prog_mem)
 

@@ -226,10 +226,10 @@ class Component(Panel):
         component executes. When the counter reaches zero, execute the
         component and reset the cycle counter.
         '''
-        self.cycle_counter -= 1
-        if self.cycle_counter == 0:
+        self._counter -= 1
+        if self._counter == 0:
             self._execute()
-            self.cycle_counter = self.cycles
+            self._counter = self._cycles
 
     def render(self, buffer:Surface, theme:Theme) -> None:
         '''

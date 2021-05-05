@@ -42,7 +42,7 @@ class Core:
                                     )
         
         coreutils.load_ui(self._core_data, self._ui)
-
+        coreutils.load_default_setup(self._canvas, program)
         self._run()
 
     def _run(self) -> None:

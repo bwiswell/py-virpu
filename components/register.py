@@ -52,13 +52,13 @@ class Register(Component):
         '''
         reg_a_add = self.in_by_id['reg-a'].value
         reg_a_val = self._data[reg_a_add.value]
-        self.out_by_id['data-a', reg_a_val]
+        self.out_by_id['data-a'].value = reg_a_val
 
         reg_b_add = self.in_by_id['reg-b'].value
         reg_b_val = self._data[reg_b_add.value]
-        self.out_by_id['data-b', reg_b_val]
+        self.out_by_id['data-b'].value = reg_b_val
 
         if self.in_by_id['reg-w-con'].value:
-            reg_w_add = self.in_by_id['reg-w']
-            reg_w_val = self.in_by_id['data-w']
+            reg_w_add = self.in_by_id['reg-w'].value
+            reg_w_val = self.in_by_id['data-w'].value
             self._data[reg_w_add.value] = reg_w_val

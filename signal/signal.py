@@ -60,7 +60,7 @@ class Signal:
                 max_signal_val = int(pow(2, width))
                 value = min(max_signal_val, value)
         bits = int2ba(value, width, signed=signed)
-        return Signal(bits)
+        return Signal(bits, width, signed)
 
     @classmethod
     def from_bool(cls, value:bool) -> Signal:

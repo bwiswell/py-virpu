@@ -30,7 +30,7 @@ class Memory(Component):
                             cycles=4,
                             config_options='t'
                         )
-        self._data = [Signal.from_value(i) for i in range(Memory.DEF_MEM)]
+        self._data = [Signal.from_value(i) for i in range(Memory.MAX_MEM)]
 
     def __getitem__(self, key:object) -> Union[Signal, List[Signal]]:
         '''Return a signal or slice of signals from the memory cell.'''
@@ -38,7 +38,7 @@ class Memory(Component):
 
     def load_program(self, program:List[bitarray]) -> None:
         '''Load a program into memory.'''
-        self._labels[0] = 'Program'
+        self._label = 'Program'
         self.out_by_id['data'].signed = False
         mem = [Signal(bitarr, signed=False) for bitarr in program]
         rem_mem = Memory.MAX_MEM - len(mem)

@@ -57,13 +57,13 @@ class ControlUnit(Component):
         data = self._data[address.value]
 
         reg_w = Signal(data[:1], 1, False)
-        self.out_by_id['reg-w'].value = reg_w
+        self.out_by_id['reg-w-con'].value = reg_w
 
         alu_a = Signal(data[1:2], 1, False)
-        self.out_by_id['alu-a'].value = alu_a
+        self.out_by_id['alu-a-src'].value = alu_a
 
         alu_b = Signal(data[2:4], 2, False)
-        self.out_by_id['alu-b'].value = alu_b
+        self.out_by_id['alu-b-src'].value = alu_b
 
         alu_op = Signal(data[4:8], 4, False)
         self.out_by_id['alu-op'].value = alu_op
