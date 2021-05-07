@@ -45,7 +45,7 @@ class NotGate(LogicGate):
         The NOT gate sets its output to the inverse of its input.
         '''
         data = self.in_by_id['data-a'].value
-        value = Signal.from_bool(not data)
+        value = Signal.from_bool(not bool(data))
         self.out_by_id['data'].value = value
 
 
@@ -66,7 +66,7 @@ class AndGate(LogicGate):
         '''
         data_a = self.in_by_id['data-a'].value
         data_b = self.in_by_id['data-b'].value
-        value = Signal.from_bool(data_a and data_b)
+        value = Signal.from_bool(bool(data_a) and bool(data_b))
         self.out_by_id['data'].value = value
 
 
@@ -86,5 +86,5 @@ class OrGate(LogicGate):
         '''
         data_a = self.in_by_id['data-a'].value
         data_b = self.in_by_id['data-b'].value
-        value = Signal.from_bool(data_a or data_b)
+        value = Signal.from_bool(bool(data_a) or bool(data_b))
         self.out_by_id['data'].value = value

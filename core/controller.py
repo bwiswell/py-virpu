@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import pygame as pg
 from pygame.event import Event
 
@@ -7,6 +9,8 @@ from .canvas import Canvas
 from ..components.ioport import IOPort
 from ..components.wire import Wire
 from ..ui.ui import UI
+
+MOVE_SPEED = 25
 
 class Controller:
     '''
@@ -38,6 +42,43 @@ class Controller:
         self._graphics = graphics
         self._canvas = canvas
         self._ui = ui
+
+    def _screen_to_canvas(self, s_pos:Tuple[int, int]) -> Tuple[int, int]:
+        '''Convert a screen position to a canvas position.'''
+        view_x, view_y = self._core_data.view_pos
+        cx = view_x + s_pos[0]
+        cy = view_y + s_pos[1]
+        return cx, cy
+
+    def _handle_move(self, pressed) -> None:
+        '''Handle movement around the canvas.'''
+        dx = 0
+        dy = 0
+        speed_mult = MOVE_SPEED
+        if pressed[pg.K_a]:
+            dx = -1
+        elif pressed[pg.K_d]:
+            dx = 1
+        if pressed[pg.K_w]:
+            dy = -1
+        elif pressed[pg.K_s]:
+            dy = 1
+        if pressed[pg.K_LSHIFT]:
+            speed_mult *= 2
+        screen_size = self._core_data.screen_size
+        view_pos = self._core_data.view_pos
+        new_x = view_pos[0] + dx * speed_mult
+        new_x = max(0, min(self._core_data.canvas_size[0] - screen_size[0], new_x))
+        new_y = view_pos[1] + dy * speed_mult
+        new_y = max(0, min(self._core_data.canvas_size[1] - screen_size[1], new_y))
+        self._core_data.view_pos = new_x, new_y
+
+    def _handle_held_keys(self) -> None:
+        '''Handle any keys being pressed and held down.'''
+        pressed = pg.key.get_pressed()
+        self._handle_move(pressed)
+        if pressed[pg.K_f]:
+            self._canvas.tick()
 
     def _delete_placing(self) -> None:
         '''Delete the component currently being placed.'''
@@ -109,9 +150,10 @@ class Controller:
         if ui_target is not None:
             ui_target.handle_hover(mouse_pos)
         else:
-            canvas_target = self._canvas.at_pos(mouse_pos)
+            canv_pos = self._screen_to_canvas(mouse_pos)
+            canvas_target = self._canvas.at_pos(canv_pos)
             if canvas_target is not None:
-                canvas_target.handle_hover(mouse_pos)
+                canvas_target.handle_hover(canv_pos)
 
     def _render_overlay(self) -> None:
         '''Render any overlay graphics.'''
@@ -128,6 +170,7 @@ class Controller:
 
     def io_tick(self) -> None:
         '''Check for and handle user inputs and render overlay.'''
+        self._handle_held_keys()
         for event in pg.event.get():
             if event.type == pg.MOUSEBUTTONDOWN:
                 self._handle_mousedown(event)

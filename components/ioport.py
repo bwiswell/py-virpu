@@ -1,4 +1,4 @@
-from pygame import Surface
+from pygame import draw, Surface
 
 from ..panels.panel import Panel
 from ..signal.signal import Signal
@@ -15,9 +15,10 @@ class IOPort(Panel):
         width (int): bit-width of IO signal
         signed (bool): signage of IO signal
         value (Signal): current value in IO port
+        config_options (str): the IO port's available configuration options
     '''
 
-    SIZE = (100, 30)
+    SIZE = (100, 40)
 
     def __init__(self, 
                     id:str,
@@ -43,6 +44,7 @@ class IOPort(Panel):
         self._width = width
         self._signed = signed
         self._value = Signal(width=width, signed=signed)
+        self.config_options = 'ws'
 
     def zero(self) -> None:
         '''Zero out the value of the IO port.'''
@@ -75,8 +77,15 @@ class IOPort(Panel):
 
     @value.setter
     def value(self, val:Signal):
-        if val.width == self._width and val.signed == self._signed:
-            self._value = val
+        w_sm = val.width < self._width
+        w_lg = val.width > self._width
+        bits = val.bits
+        if w_sm:
+            pass
+        elif w_lg:
+            i = val.width - self._width
+            bits = bits[i:]
+        self._value = Signal(bits, self._width, self._signed)
 
     def render(self, buffer:Surface, theme:Theme) -> None:
         '''
@@ -94,8 +103,27 @@ class IOPort(Panel):
             buffer,
             theme,
             active=self._hovered,
-            render_label=False
+            render_label=False,
+            render_border=False
         )
+        if self.dir == 'in':
+            draw.rect(
+                        buffer, 
+                        theme.bord_col, 
+                        self._rect, 
+                        theme.bord_w,
+                        border_top_right_radius=theme.bord_r,
+                        border_bottom_right_radius=theme.bord_r
+                    )
+        else:
+            draw.rect(
+                        buffer, 
+                        theme.bord_col, 
+                        self._rect, 
+                        theme.bord_w,
+                        border_top_left_radius=theme.bord_r,
+                        border_bottom_left_radius=theme.bord_r
+                    )
         content_x = self._rect.centerx - content.get_width() // 2
         content_y = self._rect.centery - content.get_height() // 2
         buffer.blit(content, (content_x, content_y))

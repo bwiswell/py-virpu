@@ -1,8 +1,7 @@
 from .core.core import Core
 
-program = [
-    'ADD 2 3 4',
-    'SUB 1 6 14'
-]
-
-core = Core(program)
+if __name__ == '__main__':
+    program = []
+    with open('py-virpu/programs/fib.cor', 'r') as file:
+        program = [line.strip() for line in file.readlines()]
+    core = Core(program, execute_n=1000, visual=False)

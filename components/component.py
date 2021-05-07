@@ -17,6 +17,7 @@ class Component(Panel):
     be directly instantiated.
 
     Attributes:
+        id (int): a unique number identifying the component
         ins (int): the number of incoming IO ports (input ports)
         outs (int): the number of outgoing IO ports (output ports)
         in_ports (List[IOPort]): ordered list of the component's input ports
@@ -32,14 +33,15 @@ class Component(Panel):
         bounding_box (Rect): the minimum rectangle that contains the component and its IO ports
     '''        
 
+    NEXT_ID = 0
     MAX_CYCLES = 10
-    WIDTH = 200
+    HEIGHT = 120
+    WIDTH = 300
 
     def __init__(self, 
                     comp_name:str, 
-                    in_ports:List[IOPort]=[],
-                    out_ports:List[IOPort]=[],
-                    cycles:int=1,
+                    in_ports:List[IOPort]=None,
+                    out_ports:List[IOPort]=None,
                     config_options:str=''
                 ):
         '''
@@ -47,25 +49,27 @@ class Component(Panel):
 
         Parameters:
             comp_name: the name of the component
-            in_ports: ordered list of the component's input ports (default [])
-            out_ports: ordered list of the component's output ports (default [])
+            in_ports: ordered list of the component's input ports (default None)
+            out_ports: ordered list of the component's output ports (default None)
             cycles: the number of cycles between component executions (default 1)
             config_options: the component's available config options (default '')
         '''
-        self._ins = len(in_ports)
-        self._outs = len(out_ports)
+        self.id = Component.NEXT_ID
+        Component.NEXT_ID += 1
+        self._ins = 0 if in_ports is None else len(in_ports)
+        self._outs = 0 if out_ports is None else len(out_ports)
         Panel.__init__(self, comp_name, (0, 0), self._comp_size())
 
-        self.in_ports = in_ports
-        self.in_by_id = {in_port.id: in_port for in_port in in_ports}
-        self.out_ports = out_ports
-        self.out_by_id = {out_port.id: out_port for out_port in out_ports}
+        self.in_ports = [] if in_ports is None else in_ports
+        self.in_by_id = {in_port.id: in_port for in_port in self.in_ports}
+        self.out_ports = [] if out_ports is None else out_ports
+        self.out_by_id = {out_port.id: out_port for out_port in self.out_ports}
 
         self._value = Signal()
         self._width = 32
         self._signed = True
-        self._cycles = cycles
-        self._counter = cycles
+        self._cycles = 1
+        self._counter = 1
 
         self.config_options = config_options
         
@@ -164,7 +168,7 @@ class Component(Panel):
 
     def _comp_size(self) -> Tuple[int, int]:
         '''Get the best size of the component for the number of IO ports.'''
-        return Component.WIDTH, ceil(max((1, self._ins, self._outs)) / 2.0) * 75
+        return Component.WIDTH, ceil(max([1, self._ins, self._outs]) / 2.0) * Component.HEIGHT
 
     def collides(self, collision_pos:Tuple[int, int]) -> bool:
         '''Extend Panel to detect IO port collision.'''
@@ -175,11 +179,11 @@ class Component(Panel):
         if port.dir == 'in' and self._ins + 1 <= 32:
             self.in_ports.insert(0, port)
             self.in_by_id[port.id] = port
-            self.ins += 1
+            self._ins += 1
         elif port.dir == 'out' and self._outs + 1 <= 32:
             self.out_ports.insert(0, port)
             self.out_by_id[port.id] = port
-            self.outs += 1
+            self._outs += 1
         self.size = self._comp_size()
 
     def _remove_port(self, port:IOPort) -> None:
@@ -187,11 +191,11 @@ class Component(Panel):
         if port.dir == 'in':
             self.in_ports.remove(port)
             self.in_by_id.pop(port.port_id)
-            self.ins -= 1
+            self._ins -= 1
         else:
             self.out_ports.remove(port)
             self.out_by_id.pop(port.port_id)
-            self.outs -= 1
+            self._outs -= 1
         self.size = self._comp_size()
 
     def at_pos(self, pos:Tuple[int, int]) -> Union[Component, IOPort]:

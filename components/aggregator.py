@@ -34,17 +34,17 @@ class Aggregator(Component):
 
     def _set_width(self, val:int) -> None:
         '''Set the bit width of the component.'''
-        old_w = self._width
+        w = self._width
         super()._set_width(val)
         self.out_by_id['data'].width = self._width
-        while old_w < self._width:
-            port_id = f'bit-{old_w}'
+        while w < self._width:
+            port_id = f'bit-{w}'
             port = IOPort(port_id, 'any', 'in', 1, False)
             self._add_port(port)
-            old_w += 1
-        while old_w > self._width:
-            old_w -= 1
-            port_id = f'bit-{old_w}'
+            w += 1
+        while w > self._width:
+            w -= 1
+            port_id = f'bit-{w}'
             port = self.in_by_id[port_id]
             self._remove_port(port)
 

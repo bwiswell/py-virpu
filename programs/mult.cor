@@ -1,0 +1,8 @@
+ORI 563 0 1
+OR 0 1 2
+ORI 20 0 3
+SUBI 1 3 3
+BEZ 2 3
+ADD 1 2 2
+B -4
+SW 0 0 2

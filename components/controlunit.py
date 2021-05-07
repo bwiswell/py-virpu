@@ -20,20 +20,20 @@ class ControlUnit(Component):
         '''Initialize ControlUnit object and extend Component.'''
         in_ports = [IOPort('opcode', 'address', 'in', 8, False)]
         reg_w_port = IOPort('reg-w-con', 'control', 'out', 1, False)
+        wrt_src_port = IOPort('wrt-src', 'control', 'out', 1, False)
+        branch_port = IOPort('branch', 'control', 'out', 1, False)
+        mem_w_port = IOPort('mem-w', 'control', 'out', 1, False)
         alu_a_port = IOPort('alu-a-src', 'control', 'out', 1, False)
         alu_b_port = IOPort('alu-b-src', 'control', 'out', 2, False)
         alu_op_port = IOPort('alu-op', 'control', 'out', 4, False)
-        branch_port = IOPort('branch', 'control', 'out', 1, False)
-        mem_w_port = IOPort('mem-w', 'control', 'out', 1, False)
-        wrt_src_port = IOPort('wrt-src', 'control', 'out', 1, False)
         out_ports = [
                     reg_w_port,
-                    alu_a_port,
-                    alu_b_port,
-                    alu_op_port,
+                    wrt_src_port,
                     branch_port,
                     mem_w_port,
-                    wrt_src_port
+                    alu_a_port,
+                    alu_b_port,
+                    alu_op_port
                 ]
 
         Component.__init__(self,

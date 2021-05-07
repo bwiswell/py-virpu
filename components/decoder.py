@@ -47,13 +47,12 @@ class Decoder(Component):
         args = corium.get_arg_dests(opcode.value)
 
         curr_bit = 8
-        for port in self.out_ports[1:]:
-            if port.id in args:
-                port_type = port.id.split('-')[0]
-                arg_w = 16 if port_type == 'imm' else 4
+        for port_id in ['imm', 'reg-a', 'reg-b', 'reg-w']:
+            if port_id in args:
+                arg_w = 16 if port_id == 'imm' else 4
                 arg_bits = ins[curr_bit:curr_bit + arg_w]
                 curr_bit += arg_w
-                out_sig = Signal(arg_bits, arg_w, False)
-                port.value = out_sig
+                out_sig = Signal(arg_bits, arg_w, port_id == 'imm')
+                self.out_by_id[port_id].value = out_sig
             else:
-                port.zero()
+                self.out_by_id[port_id].zero()

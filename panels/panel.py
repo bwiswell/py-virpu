@@ -87,7 +87,8 @@ class Panel:
                 buffer:Surface, 
                 theme:Theme, 
                 active:bool=False,
-                render_label:bool=True
+                render_label:bool=True,
+                render_border:bool=True
             ) -> None:
         '''
         Render panel on to the buffer using the theme.
@@ -97,13 +98,15 @@ class Panel:
             theme: the color and layout scheme to use for rendering
             active: boolean indicating if the active color should be used
             render_label: boolean indicating if the label should be rendered
+            render_border: boolean indicating if the border should be rendered
         '''
         if active:
             bg_col = theme.act_col
         else:
             bg_col = theme.bg_col
         draw.rect(buffer, bg_col, self._rect, border_radius=theme.bord_r)
-        draw.rect(buffer, theme.bord_col, self._rect, theme.bord_w, theme.bord_r)
+        if render_border:
+            draw.rect(buffer, theme.bord_col, self._rect, theme.bord_w, theme.bord_r)
         if render_label:
             label = theme.large_text(self._label)
             label_x = self._rect.centerx - label.get_width() // 2

@@ -2,6 +2,8 @@ from typing import Union
 
 from ..ui.theme import Theme
 
+SIZE = (10000, 5000)
+
 class CoreData:
     '''
     A class to store session information.
@@ -21,7 +23,9 @@ class CoreData:
         self.running = True
         self.ticks = 0
 
+        self.canvas_size = SIZE
         self.screen_size = (0, 0)
+        self.view_pos = (0, 0)
 
         self.placing = None
         self.wire = None

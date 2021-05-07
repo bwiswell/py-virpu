@@ -27,6 +27,10 @@ class Wire:
         self.wire_out = wire_out
         self._route = []
 
+    def __str__(self) -> str:
+        '''Return a string representing the wire.'''
+        return str(self.wire_in.value)
+
     def compatible(self, io:IOPort) -> bool:
         '''
         Return if the given IOPort is compatible with the wire.
@@ -100,5 +104,23 @@ class Wire:
             route += [(self.wire_out._rect.left, self.wire_out._rect.centery)]
         elif mouse_pos is not None:
             route += [mouse_pos]
+
+        max_x_seg = 0
+        max_x_dist = 0
         for i in range(len(route) - 1):
-            self._render_segment(buffer, theme, route[i], route[i + 1])
+            a = route[i]
+            b = route[i + 1]
+            x_dist = abs(b[0] - a[0])
+            if x_dist > max_x_dist:
+                max_x_seg = i
+                max_x_dist = x_dist
+            self._render_segment(buffer, theme, a, b)
+        
+        max_a = route[max_x_seg]
+        max_b = route[max_x_seg + 1]
+        mid_x = (max_a[0] + max_b[0]) // 2
+        mid_y = (max_a[1] + max_b[1]) // 2
+        label = theme.small_text(self, inv_col=True)
+        label_x = mid_x - label.get_width() // 2
+        label_y = mid_y - label.get_height() // 2
+        buffer.blit(label, (label_x, label_y))

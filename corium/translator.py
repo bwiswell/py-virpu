@@ -6,8 +6,8 @@ from bitarray.util import int2ba
 
 from . import corium
 
-MIN_IMM = int(-pow(2, 8))
-MAX_IMM = int(pow(2, 8)) - 1
+MIN_IMM = int(-pow(2, 15))
+MAX_IMM = int(pow(2, 15)) - 1
 MIN_REG = 0
 MAX_REG = 15
 

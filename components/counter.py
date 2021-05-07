@@ -16,7 +16,6 @@ class Counter(Component):
         Component.__init__(self,
                             comp_name='Counter',
                             out_ports=out_ports,
-                            cycles=4,
                             config_options='vwst'
                         )
         

@@ -1,26 +1,23 @@
 from .component import Component
 from .ioport import IOPort
-from ..signal.signal import Signal
 
-class Delayer(Component):
+class Incrementer(Component):
     '''
-    A class to represent a signal delayer that extends Component.
-
-    This class is a functional component that delays a signal for a custom
-    number of ticks.
+    A class to represent a value incrementer that extends Component.
+    
+    This class is a functional logic component that adds 1 to an incoming
+    value.
     '''
-
+    
     def __init__(self):
-        '''Initialize the Delayer object and extend Component.'''
-        in_ports = [IOPort('data', 'any', 'in')]
-        out_ports = [IOPort('data', 'any', 'out')]
-
+        '''Initialize the Incrementer object and extend Component.'''
+        in_ports = [IOPort('data', 'any', 'in', 16, False)]
+        out_ports = [IOPort('data', 'any', 'out', 16, False)]
         Component.__init__(self,
-                            comp_name='Delayer',
+                            comp_name='Incrementer',
                             in_ports=in_ports,
                             out_ports=out_ports,
-                            cycles=4,
-                            config_options='wsct'
+                            config_options='ws'
                         )
 
     def _get_width(self) -> int:
@@ -49,8 +46,10 @@ class Delayer(Component):
 
     def _execute(self) -> None:
         '''
-        Execute the delayer's functional logic.
+        Execute the incrementer's function logic.
 
-        The delayer delays a signal for a custom number of ticks.
+        The incrementer adds 1 to an incoming value.
         '''
-        self.out_by_id['data'].value = self.in_by_id['data'].value
+        value = self.in_by_id['data'].value
+        value, _ = value + 1
+        self.out_by_id['data'].value = value

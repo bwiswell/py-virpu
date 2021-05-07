@@ -58,18 +58,20 @@ class Theme:
         self._md_font = SysFont(font_name, md_font_size)
         self._lg_font = SysFont(font_name, lg_font_size)
 
-    def _render_text(self, text_obj:object, font:Font) -> Surface:
-        '''Render a text version of text_obj using the given font.'''
-        return font.render(str(text_obj), True, self.txt_col)
+    def _render_text(self, text_obj:object, font:Font, inv_col:bool=False) -> Surface:
+        '''Render a text version of text_obj using the given font and color.'''
+        color = self.bg_col if inv_col else self.txt_col
+        bg_col = self.txt_col if inv_col else None
+        return font.render(str(text_obj), True, color, bg_col)
 
-    def small_text(self, text_obj:object) -> Surface:
+    def small_text(self, text_obj:object, inv_col:bool=False) -> Surface:
         '''Render a text version of text_obj using the small font.'''
-        return self._render_text(text_obj, self._sm_font)
+        return self._render_text(text_obj, self._sm_font, inv_col)
 
-    def medium_text(self, text_obj:object) -> Surface:
+    def medium_text(self, text_obj:object, inv_col:bool=False) -> Surface:
         '''Render a text version of text_obj using the medium font.'''
-        return self._render_text(text_obj, self._md_font)
+        return self._render_text(text_obj, self._md_font, inv_col)
         
-    def large_text(self, text_obj:object) -> Surface:
+    def large_text(self, text_obj:object, inv_col:bool=False) -> Surface:
         '''Render a text version of text_obj using the large font.'''
-        return self._render_text(text_obj, self._lg_font)
+        return self._render_text(text_obj, self._lg_font, inv_col)

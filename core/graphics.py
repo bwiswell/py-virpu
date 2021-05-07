@@ -1,6 +1,7 @@
 from typing import Tuple
 
-from pygame import display, Surface, FULLSCREEN, SRCALPHA
+from pygame import display, Rect, Surface, FULLSCREEN, SRCALPHA
+import pygame
 
 from .coredata import CoreData
 
@@ -15,7 +16,7 @@ class Graphics:
         ui_buffer (Surface): The UI's render buffer
         overlay_buffer (Surface): The overlay's render buffer
     '''
-    def __init__(self, core_data:CoreData):
+    def __init__(self, core_data:CoreData, start_screen:bool=True):
         '''
         Initialize the Graphics object.
 
@@ -24,10 +25,13 @@ class Graphics:
         '''
         self._core_data = core_data
 
-        self._screen = display.set_mode(flags=FULLSCREEN)
+        if start_screen:
+            self._screen = display.set_mode(flags=FULLSCREEN)
+        else:
+            self._screen = Surface((1, 1))
         self._core_data.screen_size = self._screen.get_size()
 
-        self._canvas_buffer = Surface(self.size)
+        self._canvas_buffer = Surface(self._core_data.canvas_size)
         self._ui_buffer = Surface(self.size, SRCALPHA)
         self._overlay_buffer = Surface(self.size, SRCALPHA)
 
@@ -56,7 +60,8 @@ class Graphics:
 
     def render(self) -> None:
         '''Render the canvas, UI, and overlay buffers to the display.'''
-        self._screen.blit(self._canvas_buffer, (0, 0))
+        view_rect = Rect(self._core_data.view_pos, self._core_data.screen_size)
+        self._screen.blit(self._canvas_buffer, (0, 0), view_rect)
         self._screen.blit(self._ui_buffer, (0, 0))
         self._screen.blit(self._overlay_buffer, (0, 0))
         display.update()

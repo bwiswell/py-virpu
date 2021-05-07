@@ -70,7 +70,7 @@ class Signal:
         Parameters:
             value: the boolean value of the signal
         '''
-        return Signal(int(value), 1, False)
+        return Signal.from_value(int(value), 1, False)
 
     @property
     def bits(self) -> bitarray:
